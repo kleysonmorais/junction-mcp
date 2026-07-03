@@ -17,7 +17,7 @@
  */
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
-import { registerJunctionTools, SERVER_INFO } from "../lib/mcp/server";
+import { registerJunctionTools, SERVER_INFO } from "../src";
 
 async function main() {
   const apiKey = process.env.JUNCTION_API_KEY;

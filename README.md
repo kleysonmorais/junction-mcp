@@ -9,6 +9,25 @@ Built on the **Junction sandbox** (synthetic data only), with a Next.js demo UI 
 
 > ⚠️ Sandbox/synthetic data only. Not production-hardened for real PHI, and not medical advice.
 
+## Repository layout
+
+A pnpm workspace monorepo:
+
+```
+packages/
+  junction-mcp/         # Publishable core: transport-agnostic tool registry + Junction client
+    src/                #   index.ts barrel, mcp/, junction/
+    bin/stdio.ts        #   local stdio entry point
+apps/
+  demo-web/             # Next.js demo UI (Tool Explorer + Agent Chat) and the HTTP MCP routes
+tools/
+  synthetic-data/       # Seeds/manages the synthetic Junction sandbox data
+docs/                   # Architecture and API reference
+```
+
+The demo app depends on the core via `"junction-mcp": "workspace:*"` and imports it as a
+bare specifier — consuming the MCP server exactly like any external package would.
+
 ## Tools (v1)
 
 | Tool | Wraps |
@@ -26,13 +45,13 @@ All inputs are Zod-validated; Junction errors come back as agent-friendly tool e
 
 ## Endpoints
 
-The same tool set is served three ways (shared, transport-agnostic core in [lib/mcp/server.ts](lib/mcp/server.ts)):
+The same tool set is served three ways (shared, transport-agnostic core in [packages/junction-mcp/src/mcp/server.ts](packages/junction-mcp/src/mcp/server.ts)):
 
 | Entry point | Transport | Junction key |
 |---|---|---|
 | `POST /mcp` | Streamable HTTP, stateless | **Yours**, per request: `Authorization: Bearer sk_us_...` |
 | `POST /mcp-demo` | Streamable HTTP, stateless | Server's `JUNCTION_API_KEY` env var (powers the demo UI) |
-| `bin/stdio.ts` | stdio | `JUNCTION_API_KEY` from the MCP client's env block |
+| `packages/junction-mcp/bin/stdio.ts` | stdio | `JUNCTION_API_KEY` from the MCP client's env block |
 
 ### Point your own MCP client at it
 
@@ -56,7 +75,7 @@ Local (stdio — Claude Desktop, MCP Inspector):
   "mcpServers": {
     "junction": {
       "command": "npx",
-      "args": ["-y", "tsx", "/path/to/junction-mcp/bin/stdio.ts"],
+      "args": ["-y", "tsx", "/path/to/junction-mcp/packages/junction-mcp/bin/stdio.ts"],
       "env": { "JUNCTION_API_KEY": "sk_us_your_sandbox_key" }
     }
   }
@@ -65,31 +84,37 @@ Local (stdio — Claude Desktop, MCP Inspector):
 
 ## Setup
 
+This is a pnpm workspace — install once at the root ([pnpm](https://pnpm.io) ≥ 11.9, Node ≥ 20):
+
+```bash
+pnpm install
+```
+
 1. **Get a Junction sandbox key** — create a sandbox team at [app.junction.com](https://app.junction.com) (keys look like `sk_us_*`).
 2. **Seed the sandbox** with users, demo device connections, and lab orders:
 
    ```bash
-   cd junction-sandbox-setup
-   npm install && cp .env.example .env   # set JUNCTION_SANDBOX_API_KEY
-   npm run setup
+   cp tools/synthetic-data/.env.example tools/synthetic-data/.env   # set JUNCTION_SANDBOX_API_KEY
+   pnpm setup:sandbox
    ```
 
-   Demo device connections expire after 7 days — re-run with `--reset-devices` weekly.
+   Demo device connections expire after 7 days — re-run weekly with
+   `cd tools/synthetic-data && pnpm setup -- --reset-devices`.
 3. **Run the app:**
 
    ```bash
-   npm install
-   cp .env.example .env.local            # set JUNCTION_API_KEY (+ ANTHROPIC_API_KEY for Agent Chat)
-   npm run dev
+   cp apps/demo-web/.env.example apps/demo-web/.env.local   # set JUNCTION_API_KEY (+ ANTHROPIC_API_KEY for Agent Chat)
+   pnpm dev
    ```
 
-   Open http://localhost:3000. The Tool Explorer works with just the Junction key; Agent Chat additionally needs `ANTHROPIC_API_KEY` (swap providers by editing one line in [app/api/chat/route.ts](app/api/chat/route.ts) — the agent layer is the provider-agnostic `ai` package).
+   Open http://localhost:3000. The Tool Explorer works with just the Junction key; Agent Chat additionally needs `ANTHROPIC_API_KEY` (swap providers by editing one line in [apps/demo-web/app/api/chat/route.ts](apps/demo-web/app/api/chat/route.ts) — the agent layer is the provider-agnostic `ai` package).
 
-4. **Sanity checks:**
+4. **Sanity checks** (run from the repo root):
 
    ```bash
-   npm run smoke    # exercises the Junction client against the live sandbox
-   npm run stdio    # runs the MCP server on stdio (speaks JSON-RPC on stdin/stdout)
+   pnpm smoke        # exercises the Junction client against the live sandbox
+   pnpm stdio        # runs the MCP server on stdio (speaks JSON-RPC on stdin/stdout)
+   pnpm typecheck    # typechecks every workspace project
    ```
 
 ## Deploy to Vercel

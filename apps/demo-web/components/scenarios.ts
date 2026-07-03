@@ -1,6 +1,6 @@
 /**
  * Demo scenarios — chosen from what the seeded sandbox actually supports
- * (see junction-sandbox-setup/): device users with fitbit/oura/freestyle_libre
+ * (see tools/synthetic-data/): device users with fitbit/oura/freestyle_libre
  * demo connections and 13+ lab orders across normal/abnormal/critical states.
  */
 export interface Scenario {

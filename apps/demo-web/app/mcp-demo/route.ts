@@ -1,6 +1,6 @@
 import { createMcpHandler } from "mcp-handler";
 import { resolveDemoKey } from "@/lib/auth/resolve-key";
-import { registerJunctionTools, SERVER_INFO } from "@/lib/mcp/server";
+import { registerJunctionTools, SERVER_INFO } from "junction-mcp";
 import { validateOrigin } from "@/lib/security/origin";
 
 /**

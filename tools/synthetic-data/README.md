@@ -1,23 +1,35 @@
-# junction-sandbox-setup
+# synthetic-data
 
-Populates a Junction sandbox with users, demo device connections, and lab order
-scenarios so an MCP server wrapping the Junction API (Core Platform + Devices +
-Lab Testing) has diverse, realistic data to develop against.
+Generates and manages the synthetic Junction sandbox data — users, demo device
+connections, and lab order scenarios — so the `junction-mcp` server (Core
+Platform + Devices + Lab Testing) has diverse, realistic data to develop
+against.
+
+This is the `synthetic-data` package in the pnpm workspace. Install once from
+the repo root with `pnpm install`.
 
 ## Setup
 
 ```bash
-npm install
 cp .env.example .env   # set JUNCTION_SANDBOX_API_KEY
 ```
 
 ## Usage
 
+The common case, from the repo root:
+
 ```bash
-npm run setup                          # run all steps
-npm run setup -- --dry-run             # print planned operations, no API calls
-npm run setup -- --only=users          # users | devices | lab
-npm run setup -- --reset-devices      # deregister + re-create demo connections (run weekly)
+pnpm setup:sandbox   # run all steps
+```
+
+To pass flags, run inside this package (pnpm's `--filter` forwarding mangles
+script flags):
+
+```bash
+cd tools/synthetic-data
+pnpm setup -- --dry-run          # print planned operations, no API calls
+pnpm setup -- --only=users       # users | devices | lab
+pnpm setup -- --reset-devices    # deregister + re-create demo connections (run weekly)
 ```
 
 ## What it creates
@@ -43,7 +55,10 @@ npm run setup -- --reset-devices      # deregister + re-create demo connections 
 ## Output
 
 Writes `sandbox_state.json` (gitignored) mapping semantic scenario keys to real
-UUIDs — user IDs, lab test IDs per method, order IDs, and device connections. The MCP server loads this file at startup.
+UUIDs — user IDs, lab test IDs per method, order IDs, and device connections.
+The core package's smoke test
+([packages/junction-mcp/scripts/smoke.ts](../../packages/junction-mcp/scripts/smoke.ts))
+reads it to exercise the client against known fixtures.
 
 Every step is idempotent: users are resolved by `client_user_id`, device
 connections are skipped when already connected, and orders are created with

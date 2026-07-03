@@ -1,0 +1,35 @@
+{
+  "name": "demo-web",
+  "version": "0.1.0",
+  "description": "Next.js demo UI for junction-mcp: a Tool Explorer and an agent chat over the Junction sandbox.",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "junction-mcp": "workspace:*",
+    "@ai-sdk/anthropic": "^2",
+    "@ai-sdk/mcp": "^0.0.22",
+    "@ai-sdk/react": "^2.0.212",
+    "@modelcontextprotocol/sdk": "^1",
+    "ai": "^5",
+    "mcp-handler": "^1",
+    "next": "^15",
+    "react": "^19",
+    "react-dom": "^19",
+    "zod": "^3"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^22",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "tailwindcss": "^4",
+    "typescript": "^5"
+  }
+}

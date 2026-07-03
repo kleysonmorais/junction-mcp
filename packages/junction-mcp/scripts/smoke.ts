@@ -3,16 +3,28 @@
  * from the seeded sandbox. Run with: npm run smoke
  */
 import { readFileSync } from "node:fs";
-import { JunctionClient, JunctionApiError } from "../lib/junction/client";
+import { fileURLToPath } from "node:url";
+import { dirname, resolve } from "node:path";
+import { JunctionClient, JunctionApiError } from "../src";
+
+// Resolve paths relative to the repo root so this works regardless of CWD.
+const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
 
 // Load .env.local manually (no dotenv dependency needed for a script).
-try {
-  for (const line of readFileSync(".env.local", "utf8").split("\n")) {
-    const m = line.match(/^([A-Z_]+)=(.*)$/);
-    if (m && !process.env[m[1]]) process.env[m[1]] = m[2];
+// Check the repo root first, then the demo app's own env file — the app is the
+// canonical place for JUNCTION_API_KEY, but a root .env.local also works.
+for (const envPath of [
+  resolve(REPO_ROOT, ".env.local"),
+  resolve(REPO_ROOT, "apps/demo-web/.env.local"),
+]) {
+  try {
+    for (const line of readFileSync(envPath, "utf8").split("\n")) {
+      const m = line.match(/^([A-Z_]+)=(.*)$/);
+      if (m && !process.env[m[1]]) process.env[m[1]] = m[2];
+    }
+  } catch {
+    // missing file — try the next candidate / rely on ambient env
   }
-} catch {
-  // rely on ambient env
 }
 
 const apiKey = process.env.JUNCTION_API_KEY;
@@ -22,7 +34,10 @@ if (!apiKey) {
 }
 
 const state = JSON.parse(
-  readFileSync("junction-sandbox-setup/sandbox_state.json", "utf8"),
+  readFileSync(
+    resolve(REPO_ROOT, "tools/synthetic-data/sandbox_state.json"),
+    "utf8",
+  ),
 );
 
 const client = new JunctionClient({ apiKey });

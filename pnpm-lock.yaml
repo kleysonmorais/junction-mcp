@@ -6,7 +6,9 @@ settings:
 
 importers:
 
-  .:
+  .: {}
+
+  apps/demo-web:
     dependencies:
       '@ai-sdk/anthropic':
         specifier: ^2
@@ -23,6 +25,9 @@ importers:
       ai:
         specifier: ^5
         version: 5.0.210(zod@3.25.76)
+      junction-mcp:
+        specifier: workspace:*
+        version: link:../../packages/junction-mcp
       mcp-handler:
         specifier: ^1
         version: 1.1.0(@modelcontextprotocol/sdk@1.29.0(zod@3.25.76))(next@15.5.20(@opentelemetry/api@1.9.0)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))
@@ -54,6 +59,44 @@ importers:
       tailwindcss:
         specifier: ^4
         version: 4.3.2
+      typescript:
+        specifier: ^5
+        version: 5.9.3
+
+  packages/junction-mcp:
+    dependencies:
+      '@modelcontextprotocol/sdk':
+        specifier: ^1
+        version: 1.29.0(zod@3.25.76)
+      zod:
+        specifier: ^3
+        version: 3.25.76
+    devDependencies:
+      '@types/node':
+        specifier: ^22
+        version: 22.20.0
+      tsx:
+        specifier: ^4
+        version: 4.22.5
+      typescript:
+        specifier: ^5
+        version: 5.9.3
+
+  tools/synthetic-data:
+    dependencies:
+      '@junction-api/sdk':
+        specifier: 1.2.0
+        version: 1.2.0
+      dotenv:
+        specifier: 17.4.2
+        version: 17.4.2
+      uuid:
+        specifier: 14.0.1
+        version: 14.0.1
+    devDependencies:
+      '@types/node':
+        specifier: ^22
+        version: 22.20.0
       tsx:
         specifier: ^4
         version: 4.22.5
@@ -439,6 +482,10 @@ packages:
   '@jridgewell/trace-mapping@0.3.31':
     resolution: {integrity: sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw==}
 
+  '@junction-api/sdk@1.2.0':
+    resolution: {integrity: sha512-D5SjCUEKWsdwEUQZqVoodhO17Tss11DxSn6tRT6/Dm8G9mdmAZKUmxjlvG7SXXZCFk/8+NNB0JfRVkl6NNz25Q==}
+    engines: {node: '>=18.0.0'}
+
   '@modelcontextprotocol/sdk@1.29.0':
     resolution: {integrity: sha512-zo37mZA9hJWpULgkRpowewez1y6ML5GsXJPY8FI0tBBCd77HEvza4jDqRKOXgHNn867PVGCyTdzqpz0izu5ZjQ==}
     engines: {node: '>=18'}
@@ -756,6 +803,10 @@ packages:
   detect-libc@2.1.2:
     resolution: {integrity: sha512-Btj2BOOO83o3WyH59e8MgXsxEQVcarkUOpEYrubB0urwnN10yQ364rsiByU11nZlqWYZm05i/of7io4mzihBtQ==}
     engines: {node: '>=8'}
+
+  dotenv@17.4.2:
+    resolution: {integrity: sha512-nI4U3TottKAcAD9LLud4Cb7b2QztQMUEfHbvhTH09bqXTxnSie8WnjPALV/WMCrJZ6UV/qHJ6L03OqO3LcdYZw==}
+    engines: {node: '>=12'}
 
   dunder-proto@1.0.1:
     resolution: {integrity: sha512-KIN/nDJBQRcXw0MLVhZE9iQHmG68qAVIBg9CqmUYjmQIhgij9U5MFvrqkUL5FbtyyzZuOeOt0zdeRe4UY7ct+A==}
@@ -1249,6 +1300,10 @@ packages:
     peerDependencies:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
 
+  uuid@14.0.1:
+    resolution: {integrity: sha512-6ZxzVpzDXDa3bJWaHilVayA+BH/1zmxCJoVgvmqJnid/gPoKHxUrS/aC/T6LGQtNHT+XHG9fXPJB4d+IrU30Ew==}
+    hasBin: true
+
   vary@1.1.2:
     resolution: {integrity: sha512-BNGbWLfd0eUPabhkXUVm0j8uuvREyTh5ovRa/dyow/BqAbZJyC+5fU+IzQOzmAKzYqYRAISoRhdQr3eIZ/PXqg==}
     engines: {node: '>= 0.8'}
@@ -1520,6 +1575,8 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.5
 
+  '@junction-api/sdk@1.2.0': {}
+
   '@modelcontextprotocol/sdk@1.29.0(zod@3.25.76)':
     dependencies:
       '@hono/node-server': 1.19.14(hono@4.12.27)
@@ -1777,6 +1834,8 @@ snapshots:
   dequal@2.0.3: {}
 
   detect-libc@2.1.2: {}
+
+  dotenv@17.4.2: {}
 
   dunder-proto@1.0.1:
     dependencies:
@@ -2297,6 +2356,8 @@ snapshots:
   use-sync-external-store@1.6.0(react@19.2.7):
     dependencies:
       react: 19.2.7
+
+  uuid@14.0.1: {}
 
   vary@1.1.2: {}
 
