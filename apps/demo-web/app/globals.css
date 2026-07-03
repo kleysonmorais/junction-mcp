@@ -1,5 +1,181 @@
 @import "tailwindcss";
 
-:root {
+/* ------------------------------------------------------------------ *
+ * junction-mcp design system
+ * Ported from the standalone design. Tokens drive both themes; the
+ * theme is selected via `data-jmcp-theme` on <html>.
+ * ------------------------------------------------------------------ */
+
+:root,
+:root[data-jmcp-theme="light"] {
+  color-scheme: light;
+  --bg: #eaedf1;
+  --panel: #fdfefe;
+  --panel2: #f4f6f9;
+  --ink: #202020;
+  --sub: #4a4e57;
+  --faint: #9ca1ab;
+  --line: rgba(32, 32, 32, 0.09);
+  --line2: rgba(32, 32, 32, 0.06);
+  --accent: #3d1836;
+  --accent-text: #3d1836;
+  --accent-soft: rgba(61, 24, 54, 0.07);
+  --accent-line: rgba(61, 24, 54, 0.16);
+  --btn-bg: #3d1836;
+  --btn-ink: #f4edf3;
+  --user-bg: #3d1836;
+  --user-ink: #f4edf3;
+  --code-bg: #202020;
+  --code-text: #e2e6ec;
+  --code-accent: #c79abb;
+  --code-dim: rgba(226, 230, 236, 0.5);
+  --ok: #237a54;
+  --ok-soft: rgba(46, 158, 107, 0.1);
+  --ok-line: rgba(46, 158, 107, 0.28);
+  --nav-bg: rgba(253, 254, 254, 0.85);
+  --shadow: 0 1px 2px rgba(32, 32, 32, 0.05);
+  --shadow-lg: 0 8px 28px rgba(32, 32, 32, 0.09);
+  --glow: transparent;
+}
+
+:root[data-jmcp-theme="dark"] {
   color-scheme: dark;
+  --bg: #1d1d20;
+  --panel: #242428;
+  --panel2: #2a2a2f;
+  --ink: #e2e6ec;
+  --sub: #b4b9c2;
+  --faint: #82878f;
+  --line: rgba(226, 230, 236, 0.11);
+  --line2: rgba(226, 230, 236, 0.07);
+  --accent: #c79abb;
+  --accent-text: #c79abb;
+  --accent-soft: rgba(199, 154, 187, 0.1);
+  --accent-line: rgba(199, 154, 187, 0.28);
+  --btn-bg: #e2e6ec;
+  --btn-ink: #202020;
+  --user-bg: #3d1836;
+  --user-ink: #f4edf3;
+  --code-bg: #161618;
+  --code-text: #e2e6ec;
+  --code-accent: #c79abb;
+  --code-dim: rgba(226, 230, 236, 0.45);
+  --ok: #5bc28f;
+  --ok-soft: rgba(91, 194, 143, 0.12);
+  --ok-line: rgba(91, 194, 143, 0.3);
+  --nav-bg: rgba(36, 36, 40, 0.82);
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 10px 32px rgba(0, 0, 0, 0.45);
+  --glow: radial-gradient(closest-side, rgba(110, 59, 100, 0.38), transparent 70%);
+}
+
+/* Expose tokens to Tailwind's `theme()` and arbitrary values */
+@theme inline {
+  --color-bg: var(--bg);
+  --color-panel: var(--panel);
+  --color-panel2: var(--panel2);
+  --color-ink: var(--ink);
+  --color-sub: var(--sub);
+  --color-faint: var(--faint);
+  --color-accent: var(--accent);
+  --color-accent-text: var(--accent-text);
+  --color-ok: var(--ok);
+  --font-sans: var(--font-onest), system-ui, sans-serif;
+  --font-mono: var(--font-plex-mono), ui-monospace, monospace;
+}
+
+* {
+  border-color: var(--line);
+}
+
+html {
+  background: var(--bg);
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-onest), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+::selection {
+  background: rgba(61, 24, 54, 0.8);
+  color: #f4edf3;
+}
+
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+*::-webkit-scrollbar-thumb {
+  background: rgba(128, 128, 136, 0.35);
+  border-radius: 99px;
+  border: 3px solid transparent;
+  background-clip: content-box;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+@keyframes jmcpSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes jmcpPulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+@keyframes jmcpRise {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes jmcpBlink {
+  0%,
+  49% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+
+.jmcp-rise {
+  animation: jmcpRise 0.4s ease both;
+}
+.jmcp-pulse {
+  animation: jmcpPulse 1.4s ease-in-out infinite;
+}
+
+/* Diagonal-stripe placeholder used for screenshot cards */
+.jmcp-placeholder {
+  background-image: repeating-linear-gradient(
+    -45deg,
+    var(--line2),
+    var(--line2) 1px,
+    transparent 1px,
+    transparent 11px
+  );
+}
+
+/* Mono font helper */
+.font-mono,
+code,
+pre {
+  font-family: var(--font-plex-mono), ui-monospace, monospace;
 }

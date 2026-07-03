@@ -22,23 +22,40 @@ function ToolCallChip({ part }: { part: ToolPartLike }) {
     <div className="my-1">
       <button
         onClick={() => setOpen(!open)}
-        className="inline-flex items-center gap-2 rounded-full border border-zinc-700 bg-zinc-900 px-3 py-1 font-mono text-xs text-zinc-400 hover:text-zinc-200"
+        className="inline-flex items-center gap-2 rounded-full border px-3 py-1 font-mono text-xs transition-colors"
+        style={{
+          borderColor: "var(--line)",
+          background: "var(--panel2)",
+          color: "var(--sub)",
+        }}
       >
-        <span className={done ? "text-emerald-400" : "animate-pulse text-amber-400"}>
+        <span
+          className={done ? "" : "jmcp-pulse"}
+          style={{ color: done ? "var(--ok)" : "var(--accent-text)" }}
+        >
           {done ? "✓" : "●"}
         </span>
         {name}
-        <span className="text-zinc-600">{open ? "▾" : "▸"}</span>
+        <span style={{ color: "var(--faint)" }}>{open ? "▾" : "▸"}</span>
       </button>
       {open && (
-        <div className="mt-1 max-h-64 overflow-auto rounded-md border border-zinc-800 bg-zinc-950 p-3 font-mono text-xs text-zinc-400">
-          <div className="mb-1 text-zinc-600">input</div>
+        <div
+          className="mt-1 max-h-64 overflow-auto rounded-md border p-3 font-mono text-xs"
+          style={{
+            borderColor: "var(--line)",
+            background: "var(--code-bg)",
+            color: "var(--code-text)",
+          }}
+        >
+          <div style={{ color: "var(--code-dim)" }}>input</div>
           <pre className="whitespace-pre-wrap break-words">
             {JSON.stringify(part.input, null, 2)}
           </pre>
           {part.output !== undefined && (
             <>
-              <div className="mb-1 mt-3 text-zinc-600">output</div>
+              <div className="mt-3" style={{ color: "var(--code-dim)" }}>
+                output
+              </div>
               <pre className="whitespace-pre-wrap break-words">
                 {typeof part.output === "string"
                   ? part.output
@@ -65,7 +82,17 @@ export default function AgentChat() {
   }
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="jmcp-rise mx-auto flex max-w-3xl flex-col gap-4 px-4 pb-16 pt-10">
+      <header className="mb-2">
+        <h1 className="text-2xl font-semibold tracking-tight" style={{ color: "var(--ink)" }}>
+          Agent Chat
+        </h1>
+        <p className="mt-1 text-sm" style={{ color: "var(--sub)" }}>
+          A real agent loop over <span className="font-mono">/mcp-demo</span> — natural
+          language in, real tool calls out.
+        </p>
+      </header>
+
       {/* Scenario cards */}
       {messages.length === 0 && (
         <div className="grid gap-3 sm:grid-cols-2">
@@ -73,11 +100,20 @@ export default function AgentChat() {
             <button
               key={s.title}
               onClick={() => submit(s.prompt)}
-              className="rounded-lg border border-zinc-800 bg-zinc-900/50 p-4 text-left transition-colors hover:border-emerald-800 hover:bg-zinc-900"
+              className="rounded-xl border p-4 text-left transition-transform hover:-translate-y-px"
+              style={{
+                borderColor: "var(--line)",
+                background: "var(--panel)",
+                boxShadow: "var(--shadow)",
+              }}
             >
               <div className="mb-1 text-lg">{s.emoji}</div>
-              <div className="text-sm font-medium text-zinc-100">{s.title}</div>
-              <div className="mt-1 text-xs text-zinc-500">{s.tagline}</div>
+              <div className="text-sm font-medium" style={{ color: "var(--ink)" }}>
+                {s.title}
+              </div>
+              <div className="mt-1 text-xs" style={{ color: "var(--faint)" }}>
+                {s.tagline}
+              </div>
             </button>
           ))}
         </div>
@@ -87,15 +123,23 @@ export default function AgentChat() {
       <div className="space-y-4">
         {messages.map((message) => (
           <div key={message.id}>
-            <div className="mb-1 text-xs font-semibold uppercase tracking-wider text-zinc-600">
+            <div
+              className="mb-1 text-xs font-semibold uppercase tracking-wider"
+              style={{ color: "var(--faint)" }}
+            >
               {message.role === "user" ? "You" : "Agent"}
             </div>
             <div
-              className={`rounded-lg px-4 py-3 text-sm leading-relaxed ${
+              className="rounded-xl px-4 py-3 text-sm leading-relaxed"
+              style={
                 message.role === "user"
-                  ? "bg-emerald-950/40 text-zinc-200 ring-1 ring-emerald-900"
-                  : "bg-zinc-900/50 text-zinc-300 ring-1 ring-zinc-800"
-              }`}
+                  ? { background: "var(--user-bg)", color: "var(--user-ink)" }
+                  : {
+                      background: "var(--panel)",
+                      color: "var(--ink)",
+                      border: "1px solid var(--line)",
+                    }
+              }
             >
               {message.parts.map((part, i) => {
                 if (part.type === "text") {
@@ -114,12 +158,19 @@ export default function AgentChat() {
           </div>
         ))}
         {busy && (
-          <div className="animate-pulse text-sm text-zinc-500">
+          <div className="jmcp-pulse text-sm" style={{ color: "var(--faint)" }}>
             Agent is working…
           </div>
         )}
         {error && (
-          <div className="rounded-lg border border-red-900 bg-red-950/40 p-3 text-sm text-red-300">
+          <div
+            className="rounded-xl border p-3 text-sm"
+            style={{
+              borderColor: "var(--accent-line)",
+              background: "var(--accent-soft)",
+              color: "var(--accent-text)",
+            }}
+          >
             {error.message}
           </div>
         )}
@@ -131,18 +182,25 @@ export default function AgentChat() {
           e.preventDefault();
           submit(input);
         }}
-        className="flex gap-2"
+        className="sticky bottom-4 flex gap-2 rounded-xl border p-2"
+        style={{
+          background: "var(--panel)",
+          borderColor: "var(--line)",
+          boxShadow: "var(--shadow-lg)",
+        }}
       >
         <input
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder="Ask about wearable data or lab orders…"
-          className="flex-1 rounded-md border border-zinc-700 bg-zinc-900 px-4 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-600 focus:border-emerald-700 focus:outline-none"
+          className="flex-1 rounded-lg bg-transparent px-3 py-2 text-sm outline-none"
+          style={{ color: "var(--ink)" }}
         />
         <button
           type="submit"
           disabled={busy || !input.trim()}
-          className="rounded-md bg-emerald-700 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-emerald-600 disabled:opacity-50"
+          className="rounded-lg px-5 py-2 text-sm font-medium transition-transform hover:-translate-y-px disabled:opacity-50"
+          style={{ background: "var(--btn-bg)", color: "var(--btn-ink)" }}
         >
           Send
         </button>
