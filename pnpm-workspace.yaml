@@ -1,0 +1,4 @@
+autoInstallPeers: true
+allowBuilds:
+  esbuild: true
+  sharp: true
