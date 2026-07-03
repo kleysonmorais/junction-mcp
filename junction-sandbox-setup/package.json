@@ -1,0 +1,24 @@
+{
+  "name": "junction-sandbox-setup",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Populates a Junction sandbox with users, device connections, and lab order scenarios for MCP server development",
+  "type": "module",
+  "scripts": {
+    "setup": "node --no-warnings=ExperimentalWarning --loader ts-node/esm src/index.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "engines": {
+    "node": ">=24"
+  },
+  "dependencies": {
+    "@junction-api/sdk": "1.2.0",
+    "dotenv": "17.4.2",
+    "uuid": "14.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "24.1.0",
+    "ts-node": "10.9.2",
+    "typescript": "6.0.3"
+  }
+}

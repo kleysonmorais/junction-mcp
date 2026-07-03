@@ -1,0 +1,315 @@
+import type { Junction, JunctionClient } from "@junction-api/sdk";
+import { v5 as uuidv5 } from "uuid";
+import {
+  IDEMPOTENCY_NAMESPACE,
+  SCHEDULED_ORDER_ACTIVATE_IN_DAYS,
+  dateDaysFromNow,
+  describeError,
+} from "../config.js";
+import { getUserSpec } from "./users.js";
+import type { LabMethod, OrderRecord, ScenarioResult, UserRecord } from "../types.js";
+
+type ScenarioKind = "completed" | "frozen" | "unregistered" | "scheduled" | "redraw";
+
+interface ScenarioDef {
+  key: string;
+  kind: ScenarioKind;
+  user: string; // clientUserId
+  method: LabMethod;
+  finalStatus?: Junction.OrderStatus;
+  flags?: Junction.SimulationFlags;
+}
+
+const SCENARIOS: ScenarioDef[] = [
+  // Group A — completed, one per modality
+  { key: "completed_testkit_normal", kind: "completed", user: "mcp_lab_standard", method: "testkit",
+    finalStatus: "completed.testkit.completed", flags: { interpretation: "normal", resultTypes: ["numeric"] } },
+  { key: "completed_walkin_normal", kind: "completed", user: "mcp_lab_standard", method: "walk_in_test",
+    finalStatus: "completed.walk_in_test.completed", flags: { interpretation: "normal", resultTypes: ["numeric"] } },
+  { key: "completed_phlebotomy_normal", kind: "completed", user: "mcp_lab_phlebotomy_az", method: "at_home_phlebotomy",
+    finalStatus: "completed.at_home_phlebotomy.completed", flags: { interpretation: "normal", resultTypes: ["numeric"] } },
+  { key: "completed_onsite_normal", kind: "completed", user: "mcp_lab_standard", method: "on_site_collection",
+    finalStatus: "completed.on_site_collection.completed", flags: { interpretation: "normal", resultTypes: ["numeric"] } },
+
+  // Group B — result interpretation variants
+  { key: "completed_testkit_abnormal", kind: "completed", user: "mcp_lab_standard", method: "testkit",
+    finalStatus: "completed.testkit.completed", flags: { interpretation: "abnormal" } },
+  { key: "completed_testkit_critical", kind: "completed", user: "mcp_lab_standard", method: "testkit",
+    finalStatus: "completed.testkit.completed", flags: { interpretation: "critical" } },
+  { key: "completed_testkit_missing", kind: "completed", user: "mcp_lab_standard", method: "testkit",
+    finalStatus: "completed.testkit.completed", flags: { interpretation: "normal", hasMissingResults: true } },
+
+  // Group C — mixed result types
+  { key: "completed_walkin_mixed_types", kind: "completed", user: "mcp_lab_standard", method: "walk_in_test",
+    finalStatus: "completed.walk_in_test.completed",
+    flags: { interpretation: "normal", resultTypes: ["numeric", "comment", "range"] } },
+
+  // Group D — mid-lifecycle frozen orders
+  { key: "frozen_testkit_transit", kind: "frozen", user: "mcp_lab_standard", method: "testkit",
+    finalStatus: "collecting_sample.testkit.transit_customer" },
+  { key: "frozen_testkit_lab", kind: "frozen", user: "mcp_lab_standard", method: "testkit",
+    finalStatus: "sample_with_lab.testkit.delivered_to_lab" },
+  { key: "frozen_walkin_appointment", kind: "frozen", user: "mcp_lab_walkin_quest", method: "walk_in_test",
+    finalStatus: "collecting_sample.walk_in_test.appointment_scheduled" },
+  { key: "frozen_testkit_failed", kind: "frozen", user: "mcp_lab_standard", method: "testkit",
+    finalStatus: "failed.testkit.sample_error" },
+  { key: "frozen_testkit_cancelled", kind: "frozen", user: "mcp_lab_standard", method: "testkit",
+    finalStatus: "cancelled.testkit.cancelled" },
+
+  // Group E — registrable testkit, left unregistered
+  { key: "registrable_testkit_pending", kind: "unregistered", user: "mcp_lab_standard", method: "testkit" },
+
+  // Group F — scheduled future order
+  { key: "scheduled_testkit_future", kind: "scheduled", user: "mcp_lab_standard", method: "testkit" },
+
+  // Group G — redraw transaction (initial + child = 2 scenario keys)
+  { key: "redraw_initial_order", kind: "redraw", user: "mcp_lab_standard", method: "walk_in_test",
+    finalStatus: "collecting_sample.walk_in_test.redraw_available" },
+];
+
+export const SCENARIO_COUNT = SCENARIOS.length + 1; // redraw produces a second key: redraw_child_order
+
+interface LabPrereqs {
+  labAccountId: string;
+  labTests: Partial<Record<LabMethod, string>>;
+}
+
+export async function fetchLabPrerequisites(client: JunctionClient): Promise<LabPrereqs> {
+  const accounts = await client.labAccount.getTeamLabAccounts({});
+  const labAccountId = accounts.data?.[0]?.id;
+  if (!labAccountId) {
+    throw new Error("No lab accounts found on this sandbox team — cannot create lab orders.");
+  }
+
+  const tests = await client.labTests.get({ status: "active" });
+  // One test per collection method, preferring manually created over auto-generated.
+  const chosen: Partial<Record<LabMethod, Junction.ClientFacingLabTest>> = {};
+  for (const test of tests) {
+    if (test.status !== "active") continue;
+    const method = test.method as LabMethod;
+    const current = chosen[method];
+    if (!current || (current.autoGenerated && !test.autoGenerated)) chosen[method] = test;
+  }
+  const labTests: Partial<Record<LabMethod, string>> = {};
+  for (const [method, test] of Object.entries(chosen)) {
+    labTests[method as LabMethod] = test.id;
+  }
+
+  return { labAccountId, labTests };
+}
+
+function idempotencyKey(scenarioKey: string): string {
+  return uuidv5(scenarioKey, IDEMPOTENCY_NAMESPACE);
+}
+
+function orderRequestFor(
+  def: ScenarioDef,
+  user: UserRecord,
+  prereqs: LabPrereqs,
+): Junction.CreateOrderRequestCompatible {
+  const d = getUserSpec(def.user).demographics;
+  return {
+    idempotencyKey: idempotencyKey(def.key),
+    userId: user.userId,
+    labTestId: prereqs.labTests[def.method]!,
+    labAccountId: prereqs.labAccountId,
+    patientDetails: {
+      firstName: d.firstName,
+      lastName: d.lastName,
+      dob: d.dob,
+      gender: d.gender,
+      phoneNumber: d.phoneNumber,
+      email: d.email,
+    },
+    patientAddress: {
+      receiverName: `${d.firstName} ${d.lastName}`,
+      firstLine: d.address.firstLine,
+      city: d.address.city,
+      state: d.address.state,
+      zip: d.address.zipCode,
+      country: "US",
+      phoneNumber: d.phoneNumber,
+    },
+  };
+}
+
+/** Simulate unless the order is already at the target status (safe re-runs). */
+async function simulateTo(
+  client: JunctionClient,
+  order: Junction.ClientFacingOrder,
+  finalStatus: Junction.OrderStatus | undefined,
+  flags: Junction.SimulationFlags | undefined,
+): Promise<string> {
+  const current = order.lastEvent?.status as string | undefined;
+  if (finalStatus && current === finalStatus) {
+    return `already at ${finalStatus}, simulation skipped`;
+  }
+  await client.labTests.simulateOrderProcess({
+    orderId: order.id,
+    ...(finalStatus ? { finalStatus } : {}),
+    ...(flags && Object.keys(flags).length > 0 ? { body: flags } : {}),
+  });
+  return finalStatus ? `simulated to ${finalStatus}` : "simulated to completed";
+}
+
+interface StepOutput {
+  orders: Record<string, OrderRecord>;
+  results: ScenarioResult[];
+}
+
+export async function runLabOrdersStep(
+  client: JunctionClient,
+  users: Record<string, UserRecord>,
+  opts: { dryRun: boolean },
+): Promise<{ prereqs: LabPrereqs | null } & StepOutput> {
+  const orders: Record<string, OrderRecord> = {};
+  const results: ScenarioResult[] = [];
+
+  if (opts.dryRun) {
+    for (const def of SCENARIOS) {
+      const target = def.finalStatus ?? (def.kind === "scheduled" ? "received (activates in 14 days)" : "received.testkit.awaiting_registration");
+      console.log(`  ~ ${def.key} → would create ${def.method} order for ${def.user}, target: ${target}`);
+      if (def.kind === "redraw") {
+        console.log(`  ~ redraw_child_order → would simulate the spawned redraw order to completed`);
+      }
+    }
+    return { prereqs: null, orders, results };
+  }
+
+  let prereqs: LabPrereqs;
+  try {
+    prereqs = await fetchLabPrerequisites(client);
+  } catch (err) {
+    console.log(`  ✗ PREREQUISITES FAILED: ${describeError(err)}`);
+    console.log("  Aborting lab orders step — no lab account or lab test catalog available.");
+    return { prereqs: null, orders, results };
+  }
+
+  for (const def of SCENARIOS) {
+    const user = users[def.user];
+    if (!user) {
+      results.push({ key: def.key, outcome: "failed", detail: `user ${def.user} not resolved (run users step first)` });
+      console.log(`  ✗ ${def.key} → FAILED: user ${def.user} not resolved`);
+      continue;
+    }
+    const labTestId = prereqs.labTests[def.method];
+    if (!labTestId) {
+      results.push({ key: def.key, outcome: "failed", detail: `no active ${def.method} lab test found` });
+      console.log(`  ✗ ${def.key} → FAILED: no active ${def.method} lab test found`);
+      if (def.kind === "redraw") {
+        results.push({ key: "redraw_child_order", outcome: "failed", detail: "initial redraw order not created" });
+      }
+      continue;
+    }
+
+    try {
+      switch (def.kind) {
+        case "completed":
+        case "frozen": {
+          const { order } = await client.labTests.createOrder(orderRequestFor(def, user, prereqs));
+          const detail = await simulateTo(client, order, def.finalStatus, def.flags);
+          orders[def.key] = {
+            orderId: order.id,
+            orderTransactionId: order.orderTransaction?.id,
+            method: def.method,
+            interpretation: def.flags?.interpretation,
+            status: def.finalStatus ?? "completed",
+          };
+          results.push({ key: def.key, outcome: "ok", detail });
+          console.log(`  + ${def.key} → order ${order.id} (${detail})`);
+          break;
+        }
+
+        case "scheduled": {
+          const activateBy = dateDaysFromNow(SCHEDULED_ORDER_ACTIVATE_IN_DAYS);
+          const { order } = await client.labTests.createOrder({
+            ...orderRequestFor(def, user, prereqs),
+            activateBy,
+          });
+          orders[def.key] = {
+            orderId: order.id,
+            orderTransactionId: order.orderTransaction?.id,
+            method: def.method,
+            status: (order.lastEvent?.status as string | undefined) ?? "scheduled",
+          };
+          results.push({ key: def.key, outcome: "ok", detail: `scheduled, activates ${activateBy}` });
+          console.log(`  + ${def.key} → order ${order.id} (scheduled, activates ${activateBy})`);
+          break;
+        }
+
+        case "unregistered": {
+          const d = getUserSpec(def.user).demographics;
+          const { order } = await client.testkit.createOrder({
+            userId: user.userId,
+            labTestId,
+            labAccountId: prereqs.labAccountId,
+            shippingDetails: {
+              receiverName: `${d.firstName} ${d.lastName}`,
+              firstLine: d.address.firstLine,
+              city: d.address.city,
+              state: d.address.state,
+              zip: d.address.zipCode,
+              country: "US",
+              phoneNumber: d.phoneNumber,
+            },
+          });
+          orders[def.key] = {
+            orderId: order.id,
+            orderTransactionId: order.orderTransaction?.id,
+            method: def.method,
+            status: (order.lastEvent?.status as string | undefined) ?? "received.testkit.awaiting_registration",
+          };
+          results.push({ key: def.key, outcome: "ok", detail: "awaiting registration" });
+          console.log(`  + ${def.key} → order ${order.id} (awaiting registration, not registered on purpose)`);
+          break;
+        }
+
+        case "redraw": {
+          const { order } = await client.labTests.createOrder(orderRequestFor(def, user, prereqs));
+          await simulateTo(client, order, def.finalStatus, undefined);
+
+          const refreshed = await client.labTests.getOrder({ orderId: order.id });
+          const redrawChild = refreshed.orderTransaction?.orders?.find((o) => o.origin === "redraw");
+          orders[def.key] = {
+            orderId: order.id,
+            orderTransactionId: refreshed.orderTransaction?.id,
+            method: def.method,
+            status: def.finalStatus as string,
+            redrawnOrderId: redrawChild?.id,
+          };
+          results.push({ key: def.key, outcome: "ok", detail: `redraw available` });
+
+          if (!redrawChild) {
+            results.push({ key: "redraw_child_order", outcome: "failed", detail: "no redraw order found in transaction" });
+            console.log(`  ✗ ${def.key} → order ${order.id} but NO redraw child order in transaction`);
+            break;
+          }
+
+          await client.labTests.simulateOrderProcess({
+            orderId: redrawChild.id,
+            body: { interpretation: "normal" },
+          });
+          orders["redraw_child_order"] = {
+            orderId: redrawChild.id,
+            orderTransactionId: refreshed.orderTransaction?.id,
+            method: def.method,
+            interpretation: "normal",
+            status: "completed",
+          };
+          results.push({ key: "redraw_child_order", outcome: "ok", detail: "redraw simulated to completed" });
+          console.log(`  + ${def.key} → order ${order.id} | redraw → order ${redrawChild.id} (transaction complete)`);
+          break;
+        }
+      }
+    } catch (err) {
+      const detail = describeError(err);
+      results.push({ key: def.key, outcome: "failed", detail });
+      console.log(`  ✗ ${def.key} → FAILED: ${detail}`);
+      if (def.kind === "redraw" && !orders["redraw_child_order"]) {
+        results.push({ key: "redraw_child_order", outcome: "failed", detail: "initial order failed" });
+      }
+    }
+  }
+
+  return { prereqs, orders, results };
+}
