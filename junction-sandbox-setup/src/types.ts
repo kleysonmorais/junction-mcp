@@ -1,6 +1,6 @@
 import type { Junction } from "@junction-api/sdk";
 
-export type LabMethod = "testkit" | "walk_in_test" | "at_home_phlebotomy" | "on_site_collection";
+export type LabMethod = "testkit" | "walk_in_test" | "at_home_phlebotomy";
 
 export type DemoProvider = Junction.DemoProviders;
 
@@ -43,7 +43,6 @@ export interface SandboxState {
   generated_at: string;
   expires_at: string;
   users: Record<string, UserRecord>;
-  labAccountId: string;
   labTests: Partial<Record<LabMethod, string>>;
   orders: Record<string, OrderRecord>;
   deviceConnections: Record<string, string[]>;

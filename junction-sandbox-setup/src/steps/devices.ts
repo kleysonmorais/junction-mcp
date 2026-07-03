@@ -73,7 +73,9 @@ export async function runDevicesStep(
       }
     }
 
-    if (createdAny) {
+    // freestyle_libre is a push-style provider with no pollable source; manual refresh always 400s.
+    const refreshable = providers.some((p) => p !== "freestyle_libre");
+    if (createdAny && refreshable) {
       try {
         await client.user.refresh({ userId: user.userId });
       } catch (err) {

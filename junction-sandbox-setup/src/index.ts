@@ -77,14 +77,12 @@ async function main(): Promise<void> {
   // [3/4] Lab Orders
   console.log("\n[3/4] Lab Orders");
   let orders = prior?.orders ?? {};
-  let labAccountId = prior?.labAccountId ?? "";
   let labTests = prior?.labTests ?? {};
   let labResults: ScenarioResult[] = [];
   if (shouldRun("lab")) {
     const out = await runLabOrdersStep(client, users, { dryRun: flags.dryRun });
     labResults = out.results;
     if (!flags.dryRun && out.prereqs) {
-      labAccountId = out.prereqs.labAccountId;
       labTests = { ...labTests, ...out.prereqs.labTests };
       orders = { ...orders, ...out.orders };
     }
@@ -101,7 +99,6 @@ async function main(): Promise<void> {
       generated_at: new Date().toISOString(),
       expires_at: isoDaysFromNow(DEMO_CONNECTION_EXPIRY_DAYS),
       users,
-      labAccountId,
       labTests,
       orders,
       deviceConnections,
