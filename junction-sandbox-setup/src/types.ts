@@ -36,7 +36,6 @@ export interface OrderRecord {
   method: LabMethod;
   interpretation?: string;
   status: string;
-  redrawnOrderId?: string;
 }
 
 export interface SandboxState {

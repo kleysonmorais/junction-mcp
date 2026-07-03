@@ -28,12 +28,17 @@ npm run setup -- --reset-devices      # deregister + re-create demo connections 
 - **5 demo device connections** across 4 users (fitbit, oura, freestyle_libre,
   and a multi-provider user). Demo connections expire after **7 days** — re-run
   with `--reset-devices` weekly.
-- **16 lab order scenarios**: completed orders per modality (testkit, walk-in,
+- **14 lab order scenarios**: completed orders per modality (testkit, walk-in,
   at-home phlebotomy), abnormal/critical/missing-result variants, mixed result
-  types, five mid-lifecycle frozen orders, an unregistered testkit, a
-  future-scheduled order, and a redraw transaction (initial + child order).
-  Orders use the team's active lab tests directly — no lab account needs to be
-  provisioned on the sandbox team.
+  types, mid-lifecycle frozen orders, a cancelled order, an unregistered
+  testkit, and a future-scheduled order. Orders use the team's active lab tests
+  directly — no lab account needs to be provisioned on the sandbox team.
+  The at-home phlebotomy order books a real sandbox appointment first — the
+  simulation FSM cannot progress appointment-based orders without one.
+  On-site collection, redraw, and walk-in appointment scenarios are
+  intentionally omitted: they require capabilities this team lacks (an on-site
+  lab test, order transactions, and a Quest walk-in test — PSC appointment
+  booking supports quest/sonora_quest only).
 
 ## Output
 

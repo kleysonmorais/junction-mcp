@@ -2,7 +2,7 @@ import { JunctionClient, JunctionEnvironment } from "@junction-api/sdk";
 import { DEMO_CONNECTION_EXPIRY_DAYS, isoDaysFromNow, requireApiKey } from "./config.js";
 import { runUsersStep } from "./steps/users.js";
 import { runDevicesStep } from "./steps/devices.js";
-import { runLabOrdersStep, SCENARIO_COUNT } from "./steps/labOrders.js";
+import { runLabOrdersStep, SCENARIO_COUNT, SCENARIO_KEYS } from "./steps/labOrders.js";
 import { readState, writeState } from "./steps/state.js";
 import type { SandboxState, ScenarioResult } from "./types.js";
 
@@ -80,11 +80,14 @@ async function main(): Promise<void> {
   let labTests = prior?.labTests ?? {};
   let labResults: ScenarioResult[] = [];
   if (shouldRun("lab")) {
-    const out = await runLabOrdersStep(client, users, { dryRun: flags.dryRun });
+    const out = await runLabOrdersStep(client, users, { dryRun: flags.dryRun, priorOrders: prior?.orders });
     labResults = out.results;
     if (!flags.dryRun && out.prereqs) {
       labTests = { ...labTests, ...out.prereqs.labTests };
-      orders = { ...orders, ...out.orders };
+      // Merge with prior state, dropping orders for scenarios that no longer exist.
+      orders = Object.fromEntries(
+        Object.entries({ ...orders, ...out.orders }).filter(([key]) => SCENARIO_KEYS.includes(key)),
+      );
     }
   } else {
     console.log("  - skipped (--only)");
