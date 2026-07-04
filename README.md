@@ -1,13 +1,33 @@
 # junction-mcp
 
-An open-source **MCP server** that exposes [Junction](https://docs.junction.com)'s wearable and lab-testing data to AI agents — query patient health with natural language instead of raw API calls.
+### Your health data, fluent in natural language.
 
-Built on the **Junction sandbox** (synthetic data only), with a Next.js demo UI on top:
+**junction-mcp** is an open-source [MCP](https://modelcontextprotocol.io) server that turns [Junction](https://docs.junction.com)'s wearable streams and lab testing into tools an AI agent can actually reason over. Point any MCP client at it and ask questions like *"Review the completed lab orders and flag anything abnormal"* — natural language in, real tool calls out. No hand-written API glue, no bespoke integration layer.
 
-- **Agent Chat** — a provider-agnostic agent (Vercel AI SDK) that reasons over the MCP tools with streamed responses. Try "Review the completed lab orders and flag anything abnormal."
-- **Tool Explorer** — invoke any MCP tool directly from the browser and inspect the raw JSON. Zero setup.
+![junction-mcp landing page](docs/assets/hero.png)
 
-> ⚠️ Sandbox/synthetic data only. Not production-hardened for real PHI, and not medical advice.
+**Why it exists.** Health APIs are wide, paginated, and full of domain-specific IDs — exactly the kind of surface an LLM stumbles on when handed raw endpoints. junction-mcp wraps Junction's wearable and lab-testing APIs in **12 purpose-built tools** with Zod-validated inputs, agent-friendly errors, and a discovery-first design (`search_*` before `list_*`), so the agent spends its tokens reasoning about health, not parsing REST.
+
+- 🩺 **Wearables + labs, one endpoint** — glucose, heart rate, HRV, sleep, workouts, body metrics, lab orders, and marker-level results, all behind a single MCP server.
+- 🔌 **Bring your own client** — one core, served over **Streamable HTTP** and **stdio**. Wire it into Claude Desktop, Cursor, the MCP Inspector, or your own agent.
+- 🧪 **Zero-setup playground** — a Next.js demo UI with an **Agent Chat** and a **Tool Explorer**, running live over the Junction sandbox.
+- 📦 **Publishable core** — the MCP server is a standalone package; the demo app consumes it as a bare `junction-mcp` import, exactly like any external user would.
+
+> ⚠️ Built on the **Junction sandbox** — synthetic data only. Not production-hardened for real PHI, and not medical advice.
+
+## See it in action
+
+### Agent Chat — reasoning over the tools
+
+A provider-agnostic agent (Vercel AI SDK) plans a chain of tool calls, streams them as it goes, and turns the raw results into a clinical answer. Ask it to review completed lab orders and it fans out across `list_lab_orders` and `get_lab_results`, then flags the out-of-range markers with their reference ranges.
+
+![Agent Chat streaming real MCP tool calls](docs/assets/agent-chat.png)
+
+### Tool Explorer — the raw MCP surface
+
+Prefer to see the wire? Invoke any of the 12 tools directly from the browser and inspect the exact JSON the agent sees. Zero setup — just the sandbox key.
+
+![Tool Explorer invoking list_users](docs/assets/tool-explorer.png)
 
 ## Repository layout
 
