@@ -111,7 +111,7 @@ export default function AgentChat() {
       style={{ height: "calc(100dvh - 76px - 68px)" }}
     >
       {/* Header */}
-      <div className="flex flex-wrap items-center gap-3">
+      <div className="flex flex-wrap items-center gap-3 mb-4">
         <h1
           className="text-2xl font-semibold tracking-tight"
           style={{ color: "var(--ink)" }}
