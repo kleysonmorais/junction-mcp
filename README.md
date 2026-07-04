@@ -90,7 +90,7 @@ Remote (Streamable HTTP):
 {
   "mcpServers": {
     "junction": {
-      "url": "https://<your-deployment>/mcp",
+      "url": "https://junction-mcp.vercel.app/mcp",
       "headers": { "Authorization": "Bearer sk_us_your_sandbox_key" }
     }
   }
@@ -152,7 +152,7 @@ pnpm install
 vercel deploy
 ```
 
-Set the environment variables `JUNCTION_API_KEY` and `ANTHROPIC_API_KEY` in the Vercel project (Settings → Environment Variables). Optionally `CHAT_MODEL`, `JUNCTION_BASE_URL` (defaults to US sandbox), and `ALLOWED_ORIGINS`.
+Set the environment variables `JUNCTION_API_KEY` and `ANTHROPIC_API_KEY` in the Vercel project (Settings → Environment Variables). Optionally `CHAT_MODEL`, `JUNCTION_BASE_URL` (defaults to US sandbox), `ALLOWED_ORIGINS`, and `NEXT_PUBLIC_SITE_URL` (set to `https://junction-mcp.vercel.app` so canonical links, OG/Twitter metadata, and the sitemap use the deployed domain).
 
 ## Security
 

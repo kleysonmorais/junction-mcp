@@ -226,7 +226,7 @@ const CLIENTS = [
 const REMOTE_CONFIG = `{
   "mcpServers": {
     "junction": {
-      "url": "https://your-app.vercel.app/mcp",
+      "url": "https://junction-mcp.vercel.app/mcp",
       "headers": { "Authorization": "Bearer sk_us_your_sandbox_key" }
     }
   }
