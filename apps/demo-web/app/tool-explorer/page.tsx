@@ -1,12 +1,12 @@
 import NavBar from "@/components/NavBar";
-import Home from "@/components/Home";
+import ToolExplorer from "@/components/ToolExplorer";
 
 export default function Page() {
   return (
     <>
       <NavBar />
       <main>
-        <Home />
+        <ToolExplorer />
       </main>
     </>
   );

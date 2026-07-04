@@ -1,6 +1,8 @@
 "use client";
 
-import { GITHUB_URL, VIEWS, type View } from "./views";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { GITHUB_URL, VIEWS, VIEW_PATHS } from "./views";
 import { useTheme } from "./useTheme";
 
 function Logo() {
@@ -54,13 +56,9 @@ function ThemeToggle() {
   );
 }
 
-export default function NavBar({
-  view,
-  onSelect,
-}: {
-  view: View;
-  onSelect: (v: View) => void;
-}) {
+export default function NavBar() {
+  const pathname = usePathname();
+
   return (
     <div className="sticky top-3 z-50 px-4">
       <nav
@@ -71,22 +69,23 @@ export default function NavBar({
           boxShadow: "var(--shadow)",
         }}
       >
-        <button
-          onClick={() => onSelect("Home")}
+        <Link
+          href="/"
           className="flex items-center gap-2.5 font-semibold"
           style={{ color: "var(--ink)" }}
         >
           <Logo />
           <span className="text-[15px] tracking-tight">junction-mcp</span>
-        </button>
+        </Link>
 
         <div className="ml-2 flex items-center gap-1">
           {VIEWS.map((v) => {
-            const active = view === v;
+            const href = VIEW_PATHS[v];
+            const active = pathname === href;
             return (
-              <button
+              <Link
                 key={v}
-                onClick={() => onSelect(v)}
+                href={href}
                 className="rounded-lg px-3 py-1.5 text-sm transition-colors"
                 style={{
                   background: active ? "var(--accent-soft)" : "transparent",
@@ -95,7 +94,7 @@ export default function NavBar({
                 }}
               >
                 {v}
-              </button>
+              </Link>
             );
           })}
         </div>

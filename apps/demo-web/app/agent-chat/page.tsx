@@ -1,12 +1,12 @@
 import NavBar from "@/components/NavBar";
-import Home from "@/components/Home";
+import AgentChat from "@/components/AgentChat";
 
 export default function Page() {
   return (
     <>
       <NavBar />
       <main>
-        <Home />
+        <AgentChat />
       </main>
     </>
   );

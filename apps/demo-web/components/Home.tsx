@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { GITHUB_URL, type View } from "./views";
+import Link from "next/link";
+import { GITHUB_URL, VIEW_PATHS } from "./views";
 
 /* ------------------------------------------------------------------ *
  * Shared primitives
@@ -36,11 +37,11 @@ function CodePill({ children }: { children: React.ReactNode }) {
 
 function PrimaryButton({
   children,
-  onClick,
+  to,
   href,
 }: {
   children: React.ReactNode;
-  onClick?: () => void;
+  to?: string;
   href?: string;
 }) {
   const cls =
@@ -57,22 +58,22 @@ function PrimaryButton({
       </a>
     );
   return (
-    <button onClick={onClick} className={cls} style={style}>
+    <Link href={to ?? "/"} className={cls} style={style}>
       {children}
-    </button>
+    </Link>
   );
 }
 
 function GhostButton({
   children,
-  onClick,
+  to,
 }: {
   children: React.ReactNode;
-  onClick?: () => void;
+  to: string;
 }) {
   return (
-    <button
-      onClick={onClick}
+    <Link
+      href={to}
       className="inline-flex items-center gap-2 rounded-xl border px-5 py-3 text-sm font-medium transition-colors"
       style={{
         borderColor: "var(--line)",
@@ -81,7 +82,7 @@ function GhostButton({
       }}
     >
       {children}
-    </button>
+    </Link>
   );
 }
 
@@ -193,7 +194,7 @@ const SECURITY = [
  * Sections
  * ------------------------------------------------------------------ */
 
-function Hero({ onNavigate }: { onNavigate: (v: View) => void }) {
+function Hero() {
   return (
     <section className="grid items-start gap-10 lg:grid-cols-2">
       <div>
@@ -210,10 +211,10 @@ function Hero({ onNavigate }: { onNavigate: (v: View) => void }) {
           language in, real tool calls out.
         </p>
         <div className="mt-7 flex flex-wrap gap-3">
-          <PrimaryButton onClick={() => onNavigate("Agent Chat")}>
+          <PrimaryButton to={VIEW_PATHS["Agent Chat"]}>
             Try Agent Chat →
           </PrimaryButton>
-          <GhostButton onClick={() => onNavigate("Tool Explorer")}>
+          <GhostButton to={VIEW_PATHS["Tool Explorer"]}>
             Open Tool Explorer
           </GhostButton>
         </div>
@@ -459,7 +460,7 @@ function ConnectSection() {
   );
 }
 
-function CtaSection({ onNavigate }: { onNavigate: (v: View) => void }) {
+function CtaSection() {
   return (
     <section
       className="mt-16 rounded-2xl border px-6 py-12 text-center"
@@ -473,8 +474,8 @@ function CtaSection({ onNavigate }: { onNavigate: (v: View) => void }) {
         install.
       </p>
       <div className="mt-7 flex flex-wrap justify-center gap-3">
-        <PrimaryButton onClick={() => onNavigate("Agent Chat")}>Try Agent Chat →</PrimaryButton>
-        <GhostButton onClick={() => onNavigate("Tool Explorer")}>Open Tool Explorer</GhostButton>
+        <PrimaryButton to={VIEW_PATHS["Agent Chat"]}>Try Agent Chat →</PrimaryButton>
+        <GhostButton to={VIEW_PATHS["Tool Explorer"]}>Open Tool Explorer</GhostButton>
       </div>
       <a
         href={GITHUB_URL}
@@ -531,15 +532,15 @@ function Footer() {
   );
 }
 
-export default function Home({ onNavigate }: { onNavigate: (v: View) => void }) {
+export default function Home() {
   return (
     <div className="jmcp-rise mx-auto max-w-6xl px-4 pb-16 pt-14">
-      <Hero onNavigate={onNavigate} />
+      <Hero />
       <ByocBar />
       <ToolsSection />
       <ClientsSection />
       <ConnectSection />
-      <CtaSection onNavigate={onNavigate} />
+      <CtaSection />
       <Footer />
     </div>
   );
