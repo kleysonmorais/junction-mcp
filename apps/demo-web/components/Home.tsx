@@ -466,20 +466,15 @@ function ClientsSection() {
             }}
           >
             <div
-              className="jmcp-placeholder flex h-44 items-center justify-center border-b"
+              className="h-44 overflow-hidden border-b"
               style={{ borderColor: "var(--line)" }}
             >
-              <div
-                className="rounded-md border px-3 py-2 text-center font-mono text-[11px]"
-                style={{
-                  borderColor: "var(--line)",
-                  background: "var(--panel)",
-                  color: "var(--faint)",
-                }}
-              >
-                <div>[ {c.name.toLowerCase()} screenshot ]</div>
-                <div className="opacity-70">replace screenshots/{c.img}</div>
-              </div>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={`/screenshots/${c.img}`}
+                alt={`${c.name} screenshot`}
+                className="h-full w-full object-cover object-top"
+              />
             </div>
             <div className="flex flex-1 flex-col p-5">
               <h3
