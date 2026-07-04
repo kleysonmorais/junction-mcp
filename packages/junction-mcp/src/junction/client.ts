@@ -8,30 +8,86 @@
 
 const DEFAULT_BASE_URL = "https://api.sandbox.us.junction.com";
 
-/** Wearable summary resources — one aggregated object per day or session. */
+/**
+ * Wearable summary resources — one aggregated object per day or session.
+ */
 export const SUMMARY_RESOURCES = [
   "activity",
   "sleep",
+  "sleep_cycle",
   "workouts",
   "body",
+  "meal",
+  "menstrual_cycle",
+  "electrocardiogram",
 ] as const;
 export type SummaryResource = (typeof SUMMARY_RESOURCES)[number];
 
 /**
- * Timeseries resources exposed in v1 — the subset the sandbox demo providers
- * (fitbit, oura, freestyle_libre) actually populate, per docs/03-devices.md.
+ * Timeseries resources — discrete or interval samples.
+ * Verified against the sandbox's live OpenAPI spec (/openapi.json): docs/03-devices.md lists
+ * `fat` and `weight`, but the real resource slugs are `body_fat` and `body_weight`.
  */
 export const TIMESERIES_RESOURCES = [
+  // Discrete — Cardiorespiratory
+  "respiratory_rate",
+  // Discrete — Vitals
+  "blood_oxygen",
+  "blood_pressure",
+  "glucose",
   "heartrate",
   "hrv",
-  "glucose",
-  "steps",
-  "blood_oxygen",
-  "respiratory_rate",
-  "calories_active",
-  "distance",
+  "electrocardiogram_voltage",
+  // Discrete — Wellness
   "stress_level",
-  "weight",
+  // Discrete — Body
+  "body_fat",
+  "body_weight",
+  // Interval — Activity
+  "calories_active",
+  "calories_basal",
+  "distance",
+  "floors_climbed",
+  "steps",
+  "workout_duration",
+  "fall",
+  "wheelchair_push",
+  "stand_duration",
+  "stand_hour",
+  // Interval — Body
+  "body_temperature",
+  "body_temperature_delta",
+  "insulin_injection",
+  "waist_circumference",
+  "body_mass_index",
+  "lean_body_mass",
+  "basal_body_temperature",
+  // Interval — Vitals
+  "afib_burden",
+  "heart_rate_alert",
+  "forced_expiratory_volume_1",
+  "forced_vital_capacity",
+  "peak_expiratory_flow_rate",
+  "inhaler_usage",
+  "heart_rate_recovery_one_minute",
+  // Interval — Cardiorespiratory
+  "vo2_max",
+  // Interval — Nutrition
+  "carbohydrates",
+  "caffeine",
+  "water",
+  // Interval — Wellness
+  "mindfulness_minutes",
+  "sleep_apnea_alert",
+  "sleep_breathing_disturbance",
+  "uv_exposure",
+  "daylight_exposure",
+  "handwashing",
+  // Interval — Workout Stream
+  "workout_distance",
+  "workout_swimming_stroke",
+  // Interval — Diary
+  "note",
 ] as const;
 export type TimeseriesResource = (typeof TIMESERIES_RESOURCES)[number];
 
@@ -86,7 +142,9 @@ export class JunctionClient {
       if (res.status === 429 && attempt === 0) {
         attempt++;
         const retryAfter = Number(res.headers.get("retry-after")) || 1;
-        await new Promise((r) => setTimeout(r, Math.min(retryAfter, 10) * 1000));
+        await new Promise((r) =>
+          setTimeout(r, Math.min(retryAfter, 10) * 1000),
+        );
         continue;
       }
 

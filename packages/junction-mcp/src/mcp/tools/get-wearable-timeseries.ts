@@ -54,10 +54,22 @@ export function registerGetWearableTimeseries(server: McpServer, client: Junctio
       title: "Get Wearable Timeseries Data",
       description:
         "Fetch raw timestamped samples for one wearable metric over a date range (max 31 days). " +
-        "Resources: heartrate (bpm), hrv (rmssd), glucose (CGM readings, mmol/L), steps, blood_oxygen (SpO2 %), " +
-        "respiratory_rate, calories_active, distance, stress_level, weight. " +
-        "Dense resources (heartrate, hrv, glucose) are sampled at minute level, so responses include summary " +
+        "Discrete (point-in-time) resources — Cardiorespiratory: respiratory_rate. " +
+        "Vitals: blood_oxygen (SpO2 %), blood_pressure, glucose (CGM, mmol/L), heartrate (bpm), hrv (rmssd), " +
+        "electrocardiogram_voltage. Wellness: stress_level. Body: body_fat, body_weight. " +
+        "Interval (start/end window) resources — Activity: calories_active, calories_basal, distance, " +
+        "floors_climbed, steps, workout_duration, fall, wheelchair_push, stand_duration, stand_hour. " +
+        "Body: body_temperature, body_temperature_delta, insulin_injection, waist_circumference, " +
+        "body_mass_index, lean_body_mass, basal_body_temperature. " +
+        "Vitals: afib_burden, heart_rate_alert, forced_expiratory_volume_1, forced_vital_capacity, " +
+        "peak_expiratory_flow_rate, inhaler_usage, heart_rate_recovery_one_minute. " +
+        "Cardiorespiratory: vo2_max. Nutrition: carbohydrates, caffeine, water. " +
+        "Wellness: mindfulness_minutes, sleep_apnea_alert, sleep_breathing_disturbance, uv_exposure, " +
+        "daylight_exposure, handwashing. Workout Stream: workout_distance, workout_swimming_stroke. Diary: note. " +
+        "Very-high-frequency resources (heartrate, calories_active) and high-frequency ones (steps, glucose, " +
+        "stress_level, respiratory_rate) can return thousands of samples/day, so responses include summary " +
         "stats (min/max/avg) and are evenly downsampled to at most 400 points — narrow the date range for full resolution. " +
+        "Sparse resources (alert-type data especially) may return few or no samples in a given window. " +
         "Prefer get_wearable_summary for daily/session aggregates; use this for intraday patterns and trends.",
       inputSchema: {
         user_id: userIdSchema,
