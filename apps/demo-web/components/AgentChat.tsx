@@ -16,7 +16,8 @@ interface ToolPartLike {
 function ToolCallChip({ part }: { part: ToolPartLike }) {
   const [open, setOpen] = useState(false);
   const name = part.toolName ?? part.type.replace(/^tool-/, "");
-  const done = part.state === "output-available" || part.state === "output-error";
+  const done =
+    part.state === "output-available" || part.state === "output-error";
 
   return (
     <div className="my-1">
@@ -48,7 +49,7 @@ function ToolCallChip({ part }: { part: ToolPartLike }) {
           }}
         >
           <div style={{ color: "var(--code-dim)" }}>input</div>
-          <pre className="whitespace-pre-wrap break-words">
+          <pre className="whitespace-pre-wrap wrap-break-word">
             {JSON.stringify(part.input, null, 2)}
           </pre>
           {part.output !== undefined && (
@@ -56,7 +57,7 @@ function ToolCallChip({ part }: { part: ToolPartLike }) {
               <div className="mt-3" style={{ color: "var(--code-dim)" }}>
                 output
               </div>
-              <pre className="whitespace-pre-wrap break-words">
+              <pre className="whitespace-pre-wrap wrap-break-word">
                 {typeof part.output === "string"
                   ? part.output
                   : JSON.stringify(part.output, null, 2).slice(0, 4000)}
@@ -84,12 +85,15 @@ export default function AgentChat() {
   return (
     <div className="jmcp-rise mx-auto flex max-w-3xl flex-col gap-4 px-4 pb-16 pt-10">
       <header className="mb-2">
-        <h1 className="text-2xl font-semibold tracking-tight" style={{ color: "var(--ink)" }}>
+        <h1
+          className="text-2xl font-semibold tracking-tight"
+          style={{ color: "var(--ink)" }}
+        >
           Agent Chat
         </h1>
         <p className="mt-1 text-sm" style={{ color: "var(--sub)" }}>
-          A real agent loop over <span className="font-mono">/mcp-demo</span> — natural
-          language in, real tool calls out.
+          A real agent loop over <span className="font-mono">/mcp-demo</span> —
+          natural language in, real tool calls out.
         </p>
       </header>
 
@@ -108,7 +112,10 @@ export default function AgentChat() {
               }}
             >
               <div className="mb-1 text-lg">{s.emoji}</div>
-              <div className="text-sm font-medium" style={{ color: "var(--ink)" }}>
+              <div
+                className="text-sm font-medium"
+                style={{ color: "var(--ink)" }}
+              >
                 {s.title}
               </div>
               <div className="mt-1 text-xs" style={{ color: "var(--faint)" }}>
@@ -149,7 +156,10 @@ export default function AgentChat() {
                     </p>
                   );
                 }
-                if (part.type === "dynamic-tool" || part.type.startsWith("tool-")) {
+                if (
+                  part.type === "dynamic-tool" ||
+                  part.type.startsWith("tool-")
+                ) {
                   return <ToolCallChip key={i} part={part as ToolPartLike} />;
                 }
                 return null;
