@@ -171,6 +171,12 @@ body {
 .jmcp-pulse {
   animation: jmcpPulse 1.4s ease-in-out infinite;
 }
+.jmcp-spin {
+  animation: jmcpSpin 0.7s linear infinite;
+}
+.jmcp-blink {
+  animation: jmcpBlink 1s steps(1) infinite;
+}
 
 /* Diagonal-stripe placeholder used for screenshot cards */
 .jmcp-placeholder {

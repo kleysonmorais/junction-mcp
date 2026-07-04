@@ -1,7 +1,7 @@
 "use client";
 
 import { useChat } from "@ai-sdk/react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { SCENARIOS } from "./scenarios";
 
 interface ToolPartLike {
@@ -20,28 +20,33 @@ function ToolCallChip({ part }: { part: ToolPartLike }) {
     part.state === "output-available" || part.state === "output-error";
 
   return (
-    <div className="my-1">
+    <div className="self-start">
       <button
         onClick={() => setOpen(!open)}
-        className="inline-flex items-center gap-2 rounded-full border px-3 py-1 font-mono text-xs transition-colors"
+        className="inline-flex items-center gap-2.5 rounded-lg border px-3 py-1.5 font-mono text-xs transition-colors"
         style={{
-          borderColor: "var(--line)",
-          background: "var(--panel2)",
-          color: "var(--sub)",
+          borderColor: "var(--accent-line)",
+          background: "var(--accent-soft)",
+          color: "var(--accent-text)",
         }}
       >
-        <span
-          className={done ? "" : "jmcp-pulse"}
-          style={{ color: done ? "var(--ok)" : "var(--accent-text)" }}
-        >
-          {done ? "✓" : "●"}
-        </span>
-        {name}
+        <span>→ {name}()</span>
+        {done ? (
+          <span style={{ color: "var(--faint)" }}>· done</span>
+        ) : (
+          <span
+            className="jmcp-spin inline-block h-[11px] w-[11px] rounded-full border-2"
+            style={{
+              borderColor: "var(--accent-line)",
+              borderTopColor: "var(--accent-text)",
+            }}
+          />
+        )}
         <span style={{ color: "var(--faint)" }}>{open ? "▾" : "▸"}</span>
       </button>
       {open && (
         <div
-          className="mt-1 max-h-64 overflow-auto rounded-md border p-3 font-mono text-xs"
+          className="mt-1.5 max-h-64 overflow-auto rounded-md border p-3 font-mono text-xs"
           style={{
             borderColor: "var(--line)",
             background: "var(--code-bg)",
@@ -71,9 +76,16 @@ function ToolCallChip({ part }: { part: ToolPartLike }) {
 }
 
 export default function AgentChat() {
-  const { messages, sendMessage, status, error } = useChat();
+  const { messages, sendMessage, setMessages, status, error } = useChat();
   const [input, setInput] = useState("");
   const busy = status === "submitted" || status === "streaming";
+  const listRef = useRef<HTMLDivElement>(null);
+
+  // Keep the transcript pinned to the latest message.
+  useEffect(() => {
+    const el = listRef.current;
+    if (el) el.scrollTop = el.scrollHeight;
+  }, [messages, busy]);
 
   function submit(text: string) {
     const trimmed = text.trim();
@@ -82,99 +94,185 @@ export default function AgentChat() {
     setInput("");
   }
 
+  const empty = messages.length === 0;
+
   return (
-    <div className="jmcp-rise mx-auto flex max-w-3xl flex-col gap-4 px-4 pb-16 pt-10">
-      <header className="mb-2">
+    <div
+      className="jmcp-rise mx-auto flex max-w-5xl flex-col px-4 pb-4 pt-10"
+      style={{ height: "calc(100dvh - 84px)" }}
+    >
+      {/* Header */}
+      <div className="flex flex-wrap items-center gap-3">
         <h1
           className="text-2xl font-semibold tracking-tight"
           style={{ color: "var(--ink)" }}
         >
           Agent Chat
         </h1>
-        <p className="mt-1 text-sm" style={{ color: "var(--sub)" }}>
-          A real agent loop over <span className="font-mono">/mcp-demo</span> —
-          natural language in, real tool calls out.
-        </p>
-      </header>
-
-      {/* Scenario cards */}
-      {messages.length === 0 && (
-        <div className="grid gap-3 sm:grid-cols-2">
-          {SCENARIOS.map((s) => (
-            <button
-              key={s.title}
-              onClick={() => submit(s.prompt)}
-              className="rounded-xl border p-4 text-left transition-transform hover:-translate-y-px"
-              style={{
-                borderColor: "var(--line)",
-                background: "var(--panel)",
-                boxShadow: "var(--shadow)",
-              }}
-            >
-              <div className="mb-1 text-lg">{s.emoji}</div>
-              <div
-                className="text-sm font-medium"
-                style={{ color: "var(--ink)" }}
-              >
-                {s.title}
-              </div>
-              <div className="mt-1 text-xs" style={{ color: "var(--faint)" }}>
-                {s.tagline}
-              </div>
-            </button>
-          ))}
-        </div>
-      )}
+        <span
+          className="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11.5px] font-semibold"
+          style={{
+            color: "var(--ok)",
+            background: "var(--ok-soft)",
+            borderColor: "var(--ok-line)",
+          }}
+        >
+          <span
+            className="jmcp-pulse inline-block h-1.5 w-1.5 rounded-full"
+            style={{ background: "var(--ok)" }}
+          />
+          sandbox demo · synthetic data
+        </span>
+        {!empty && (
+          <button
+            onClick={() => setMessages([])}
+            className="ml-auto rounded-lg border px-3 py-1.5 text-[12.5px] transition-colors"
+            style={{ color: "var(--faint)", borderColor: "var(--line)" }}
+          >
+            Clear conversation
+          </button>
+        )}
+      </div>
+      <div
+        className="mb-2 mt-1 text-[12.5px]"
+        style={{ color: "var(--faint)" }}
+      >
+        Vercel AI SDK agent · streams over{" "}
+        <code className="font-mono text-[11.5px]">POST /mcp-demo</code>
+      </div>
 
       {/* Transcript */}
-      <div className="space-y-4">
-        {messages.map((message) => (
-          <div key={message.id}>
-            <div
-              className="mb-1 text-xs font-semibold uppercase tracking-wider"
-              style={{ color: "var(--faint)" }}
+      <div
+        ref={listRef}
+        className="min-h-0 flex-1 overflow-y-auto px-0.5 pb-1 pt-3"
+      >
+        {empty ? (
+          <div className="flex min-h-full flex-col items-center justify-center gap-2 py-2 text-center">
+            <span
+              className="mb-1 grid h-[34px] w-[34px] place-items-center rounded-xl"
+              style={{ background: "var(--btn-bg)" }}
             >
-              {message.role === "user" ? "You" : "Agent"}
+              <span
+                className="block h-[11px] w-[11px] rounded-full"
+                style={{ background: "var(--btn-ink)" }}
+              />
+            </span>
+            <div
+              className="text-[17px] font-[650]"
+              style={{ color: "var(--ink)" }}
+            >
+              Ask the sandbox anything.
             </div>
             <div
-              className="rounded-xl px-4 py-3 text-sm leading-relaxed"
-              style={
-                message.role === "user"
-                  ? { background: "var(--user-bg)", color: "var(--user-ink)" }
-                  : {
-                      background: "var(--panel)",
-                      color: "var(--ink)",
-                      border: "1px solid var(--line)",
-                    }
-              }
+              className="max-w-[46ch] text-[13px] leading-[1.55]"
+              style={{ color: "var(--sub)" }}
             >
-              {message.parts.map((part, i) => {
-                if (part.type === "text") {
-                  return (
-                    <p key={i} className="whitespace-pre-wrap">
-                      {part.text}
-                    </p>
-                  );
-                }
-                if (
-                  part.type === "dynamic-tool" ||
-                  part.type.startsWith("tool-")
-                ) {
-                  return <ToolCallChip key={i} part={part as ToolPartLike} />;
-                }
-                return null;
-              })}
+              The agent reasons over the 8 MCP tools with streamed responses. Try
+              one of these:
+            </div>
+            <div className="mt-3.5 flex w-full max-w-[560px] flex-col gap-2.5">
+              {SCENARIOS.map((s) => (
+                <button
+                  key={s.label}
+                  onClick={() => submit(s.prompt)}
+                  className="rounded-2xl border p-4 text-left transition-transform hover:-translate-y-px"
+                  style={{
+                    borderColor: "var(--line)",
+                    background: "var(--panel)",
+                    boxShadow: "var(--shadow)",
+                  }}
+                >
+                  <div
+                    className="text-[13.5px] font-[550] leading-[1.4]"
+                    style={{ color: "var(--ink)" }}
+                  >
+                    {s.label}
+                  </div>
+                  <div
+                    className="mt-1 font-mono text-[11px]"
+                    style={{ color: "var(--faint)" }}
+                  >
+                    {s.sub}
+                  </div>
+                </button>
+              ))}
             </div>
           </div>
-        ))}
-        {busy && (
-          <div className="jmcp-pulse text-sm" style={{ color: "var(--faint)" }}>
+        ) : (
+          messages.map((message) => {
+            if (message.role === "user") {
+              const text = message.parts
+                .map((p) => (p.type === "text" ? p.text : ""))
+                .join("");
+              return (
+                <div key={message.id} className="jmcp-rise my-3.5 flex justify-end">
+                  <div
+                    className="max-w-[78%] whitespace-pre-wrap border px-4 py-2.5 text-sm leading-[1.55]"
+                    style={{
+                      background: "var(--user-bg)",
+                      color: "var(--user-ink)",
+                      borderColor: "var(--accent-line)",
+                      borderRadius: "16px 16px 5px 16px",
+                    }}
+                  >
+                    {text}
+                  </div>
+                </div>
+              );
+            }
+
+            return (
+              <div
+                key={message.id}
+                className="jmcp-rise my-3.5 flex flex-col items-start gap-2"
+              >
+                {message.parts.map((part, i) => {
+                  if (part.type === "text") {
+                    return (
+                      <div
+                        key={i}
+                        className="max-w-[88%] whitespace-pre-wrap border px-4 py-3 text-sm leading-relaxed"
+                        style={{
+                          background: "var(--panel)",
+                          color: "var(--ink)",
+                          borderColor: "var(--line)",
+                          borderRadius: "16px 16px 16px 5px",
+                          boxShadow: "var(--shadow)",
+                        }}
+                      >
+                        {part.text}
+                        {busy && (
+                          <span
+                            className="jmcp-blink ml-0.5 inline-block h-[15px] w-[7px] rounded-sm align-text-bottom"
+                            style={{ background: "var(--accent-text)" }}
+                          />
+                        )}
+                      </div>
+                    );
+                  }
+                  if (
+                    part.type === "dynamic-tool" ||
+                    part.type.startsWith("tool-")
+                  ) {
+                    return <ToolCallChip key={i} part={part as ToolPartLike} />;
+                  }
+                  return null;
+                })}
+              </div>
+            );
+          })
+        )}
+        {busy && messages[messages.length - 1]?.role === "user" && (
+          <div
+            className="jmcp-pulse my-3.5 text-sm"
+            style={{ color: "var(--faint)" }}
+          >
             Agent is working…
           </div>
         )}
         {error && (
           <div
-            className="rounded-xl border p-3 text-sm"
+            className="my-3.5 rounded-xl border p-3 text-sm"
             style={{
               borderColor: "var(--accent-line)",
               background: "var(--accent-soft)",
@@ -192,29 +290,52 @@ export default function AgentChat() {
           e.preventDefault();
           submit(input);
         }}
-        className="sticky bottom-4 flex gap-2 rounded-xl border p-2"
+        className="mt-3 flex items-center gap-2.5 rounded-2xl border py-2 pl-[18px] pr-2"
         style={{
           background: "var(--panel)",
           borderColor: "var(--line)",
-          boxShadow: "var(--shadow-lg)",
+          boxShadow: "var(--shadow)",
         }}
       >
         <input
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          placeholder="Ask about wearable data or lab orders…"
-          className="flex-1 rounded-lg bg-transparent px-3 py-2 text-sm outline-none"
+          placeholder="Ask about users, wearables, or lab results…"
+          className="flex-1 bg-transparent py-2 text-sm outline-none"
           style={{ color: "var(--ink)" }}
         />
-        <button
-          type="submit"
-          disabled={busy || !input.trim()}
-          className="rounded-lg px-5 py-2 text-sm font-medium transition-transform hover:-translate-y-px disabled:opacity-50"
-          style={{ background: "var(--btn-bg)", color: "var(--btn-ink)" }}
-        >
-          Send
-        </button>
+        {busy ? (
+          <span
+            className="grid h-[38px] w-[38px] place-items-center rounded-xl"
+            style={{ background: "var(--panel2)" }}
+          >
+            <span
+              className="jmcp-spin block h-[13px] w-[13px] rounded-full border-2"
+              style={{
+                borderColor: "var(--line)",
+                borderTopColor: "var(--accent-text)",
+              }}
+            />
+          </span>
+        ) : (
+          <button
+            type="submit"
+            disabled={!input.trim()}
+            title="Send"
+            className="grid h-[38px] w-[38px] place-items-center rounded-xl text-base font-bold transition-transform hover:-translate-y-px disabled:opacity-50"
+            style={{ background: "var(--btn-bg)", color: "var(--btn-ink)" }}
+          >
+            ↑
+          </button>
+        )}
       </form>
+      <div
+        className="mx-0.5 mb-3.5 mt-2 text-[11.5px]"
+        style={{ color: "var(--faint)" }}
+      >
+        Live over the demo sandbox — the agent streams real tool calls over{" "}
+        <code className="font-mono">/mcp-demo</code>.
+      </div>
     </div>
   );
 }

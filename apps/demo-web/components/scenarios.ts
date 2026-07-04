@@ -4,39 +4,31 @@
  * demo connections and 13+ lab orders across normal/abnormal/critical states.
  */
 export interface Scenario {
-  title: string;
-  tagline: string;
+  /** Prompt shown to the user and sent to the agent. */
+  label: string;
+  /** Mono sub-label hinting at the tools the agent will reach for. */
+  sub: string;
+  /** The message actually sent to the agent. */
   prompt: string;
-  emoji: string;
 }
 
 export const SCENARIOS: Scenario[] = [
   {
-    emoji: "😴",
-    title: "Recovery check-in",
-    tagline: "Sleep + HRV, multi-signal reasoning across two wearables",
-    prompt:
-      "How has the user 'mcp_device_multi' been sleeping over the last week? Compare their sleep quality with their HRV trend and tell me whether they look recovered or strained.",
-  },
-  {
-    emoji: "🩸",
-    title: "CGM glucose review",
-    tagline: "Intraday continuous glucose analysis",
-    prompt:
-      "Analyze the last 2 days of glucose readings for the CGM user 'mcp_device_freestyle'. Were there any spikes or dips, and how much time was spent outside a healthy range?",
-  },
-  {
-    emoji: "🧪",
-    title: "Lab results triage",
-    tagline: "Flag abnormal & critical markers across completed orders",
+    label: "Review the completed lab orders and flag anything abnormal.",
+    sub: "→ list_lab_orders · get_lab_results",
     prompt:
       "Review the completed lab orders and flag any abnormal or critical results. For each out-of-range marker, tell me the value, the reference range, and what it might mean.",
   },
   {
-    emoji: "📦",
-    title: "Order tracking",
-    tagline: "Lifecycle status across in-flight lab orders",
+    label: "How did glucose trend for the FreeStyle demo user last week?",
+    sub: "→ get_wearable_timeseries · glucose",
     prompt:
-      "Which lab orders are still in progress (not completed, cancelled, or failed)? For each one, explain where it is in its lifecycle and what the next step is.",
+      "Analyze the last 2 days of glucose readings for the CGM user 'mcp_device_freestyle'. Were there any spikes or dips, and how much time was spent outside a healthy range?",
+  },
+  {
+    label: "Compare sleep across the demo users this month.",
+    sub: "→ get_wearable_summary · sleep",
+    prompt:
+      "How has the user 'mcp_device_multi' been sleeping over the last week? Compare their sleep quality with their HRV trend and tell me whether they look recovered or strained.",
   },
 ];
