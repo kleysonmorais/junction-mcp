@@ -19,8 +19,6 @@ export default function ToolExplorer() {
   const [callError, setCallError] = useState<string | null>(null);
   const [missingFields, setMissingFields] = useState<Set<string>>(new Set());
 
-  console.log(tools);
-
   useEffect(() => {
     listTools()
       .then((t) => {

@@ -25,7 +25,7 @@ export default function Page() {
   return (
     <>
       <NavBar />
-      <main>
+      <main className="flex min-h-0 flex-1 flex-col">
         <AgentChat />
       </main>
     </>

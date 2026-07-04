@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Onest, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
+import Footer from "@/components/Footer";
 
 const onest = Onest({
   subsets: ["latin"],
@@ -72,7 +73,10 @@ export default function RootLayout({
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
-      <body className="min-h-screen">{children}</body>
+      <body className="flex min-h-screen flex-col">
+        {children}
+        <Footer />
+      </body>
     </html>
   );
 }

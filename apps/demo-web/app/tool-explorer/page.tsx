@@ -25,7 +25,7 @@ export default function Page() {
   return (
     <>
       <NavBar />
-      <main>
+      <main className="flex-1">
         <ToolExplorer />
       </main>
     </>

@@ -107,8 +107,8 @@ export default function AgentChat() {
 
   return (
     <div
-      className="jmcp-rise mx-auto flex max-w-5xl flex-col px-4 pb-4 pt-10"
-      style={{ height: "calc(100dvh - 84px)" }}
+      className="jmcp-rise mx-auto flex min-h-0 w-full max-w-5xl flex-col px-4 pb-4 pt-10"
+      style={{ height: "calc(100dvh - 76px - 68px)" }}
     >
       {/* Header */}
       <div className="flex flex-wrap items-center gap-3">
@@ -172,13 +172,7 @@ export default function AgentChat() {
             >
               Ask the sandbox anything.
             </div>
-            <div
-              className="max-w-[46ch] text-[13px] leading-[1.55]"
-              style={{ color: "var(--sub)" }}
-            >
-              The agent reasons over the 8 MCP tools with streamed responses. Try
-              one of these:
-            </div>
+
             <div className="mt-3.5 flex w-full max-w-[560px] flex-col gap-2.5">
               {SCENARIOS.map((s) => (
                 <button
@@ -214,7 +208,10 @@ export default function AgentChat() {
                 .map((p) => (p.type === "text" ? p.text : ""))
                 .join("");
               return (
-                <div key={message.id} className="jmcp-rise my-3.5 flex justify-end">
+                <div
+                  key={message.id}
+                  className="jmcp-rise my-3.5 flex justify-end"
+                >
                   <div
                     className="max-w-[78%] whitespace-pre-wrap border px-4 py-2.5 text-sm leading-[1.55]"
                     style={{
