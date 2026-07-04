@@ -167,6 +167,26 @@ export class JunctionClient {
     return this.request("/v2/user/");
   }
 
+  /**
+   * Search users by name, email, phone, client_user_id, or Junction user_id.
+   * `search_input` is required by the API. Returns a { users: [...] } envelope
+   * where each user carries full demographics + connected_sources.
+   */
+  searchUsers(query: {
+    search_input: string;
+    limit?: number;
+    order_key?:
+      | "created_on"
+      | "client_user_id"
+      | "first_name"
+      | "last_name"
+      | "email"
+      | "phone_number";
+    order_direction?: "asc" | "desc";
+  }): Promise<unknown> {
+    return this.request("/v2/user/search", query);
+  }
+
   getUser(userId: string): Promise<unknown> {
     return this.request(`/v2/user/${encodeURIComponent(userId)}`);
   }
@@ -215,12 +235,61 @@ export class JunctionClient {
     return this.request("/v3/lab_tests/");
   }
 
+  /**
+   * Search the orderable lab-test catalog by name, with pagination and an
+   * active/inactive filter. Preferred over listLabTests for large catalogs —
+   * returns a { data: [...], next_cursor } envelope.
+   */
+  searchLabTests(query?: {
+    name?: string;
+    status?: "active" | "inactive";
+    lab_test_limit?: number;
+  }): Promise<unknown> {
+    return this.request("/v3/lab_test", query);
+  }
+
+  /**
+   * Search the marker/panel compendium by name or provider id. Each marker
+   * carries its LOINC code, unit, type (biomarker/panel), and the tests it
+   * belongs to. Returns a { markers: [...], total, page, size, pages } envelope.
+   */
+  searchLabMarkers(query?: {
+    name?: string;
+    lab_id?: number;
+    page?: number;
+    size?: number;
+  }): Promise<unknown> {
+    return this.request("/v3/lab_tests/markers", query);
+  }
+
   listOrders(query?: {
     user_id?: string;
+    search_input?: string;
+    start_date?: string;
+    end_date?: string;
+    updated_start_date?: string;
+    updated_end_date?: string;
     page?: number;
     size?: number;
   }): Promise<unknown> {
     return this.request("/v3/orders", query);
+  }
+
+  /**
+   * Search lab results across the team by patient name, order id, or
+   * client_user_id, with created_at date filtering and cursor pagination.
+   * Each row is a result summary (interpretation flag, patient, lab, test,
+   * order status) — use getOrderResults for the full marker breakdown.
+   * Returns a { data: [...], next_cursor } envelope.
+   */
+  searchResults(query?: {
+    search_input?: string;
+    created_at_start?: string;
+    created_at_end?: string;
+    results_limit?: number;
+    next_cursor?: string;
+  }): Promise<unknown> {
+    return this.request("/v3/result", query);
   }
 
   getOrder(orderId: string): Promise<unknown> {

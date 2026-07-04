@@ -44,9 +44,63 @@ Body: { "client_user_id": "unique_id" }
 ```http
 GET /v3/lab_tests/                     # list all active lab tests (deprecated, no pagination)
 GET /v3/lab_test/{lab_test_id}         # get specific test with markers
-GET /v3/lab_tests/markers              # browse full marker compendium
+GET /v3/lab_tests/markers              # browse / search full marker compendium
 GET /v3/lab_tests/{id}/markers         # markers for a specific test
 ```
+
+> Note: `GET /v3/lab_tests/` (trailing slash) 307-redirects to `GET /v3/lab_tests` — follow redirects
+> (browser `fetch` / most HTTP clients do this automatically; bare `curl` does not without `-L`).
+
+### Search the test catalog (paginated) — preferred over `/v3/lab_tests/`
+```http
+GET /v3/lab_test?name=lipid&status=active&lab_test_limit=10
+```
+Returns a cursor-paginated envelope:
+```json
+{
+  "data": [
+    {
+      "id": "b439efda-...", "slug": "lipid_panel_athome", "name": "Lipid Panel: At Home",
+      "sample_type": "serum", "method": "at_home_phlebotomy", "price": 0.0,
+      "is_active": true, "status": "active", "fasting": false,
+      "lab": { "id": 6, "slug": "labcorp", "name": "Labcorp", "collection_methods": [...] },
+      "markers": [ { "id": 1975, "name": "Lipid Panel", "type": "biomarker", ... } ],
+      "common_tat_days": 3, "worst_case_tat_days": 5
+    }
+  ],
+  "next_cursor": null
+}
+```
+| Param | Notes |
+|---|---|
+| `name` | case-insensitive substring of the test name |
+| `status` | `active` \| `inactive` |
+| `lab_test_limit` | page size (default 10) |
+
+Exposed as the `search_lab_tests` MCP tool.
+
+### Search the marker / panel compendium
+```http
+GET /v3/lab_tests/markers?name=glucose&page=1&size=10
+```
+Returns a page-numbered envelope; each marker carries its LOINC code, unit, type, and provider_id:
+```json
+{
+  "markers": [
+    {
+      "id": 166656, "name": "Glucose", "slug": "glucose", "type": "panel",
+      "lab_id": 25, "provider_id": "10002021", "is_orderable": true,
+      "expected_results": [
+        { "id": 166656, "name": "Glucose", "required": true,
+          "loinc": { "code": "2345-7", "name": "Glucose [Mass/Vol]", "unit": "mg/dL" } }
+      ]
+    }
+  ],
+  "total": 39, "page": 1, "size": 10, "pages": 4
+}
+```
+Responses are verbose — keep `size` small. Use this to answer "which tests measure X?" or to find the
+`provider_id` / `marker_id` needed to build a custom lab test. Exposed as the `search_lab_markers` MCP tool.
 
 ## Creating a Custom Lab Test
 ```http
@@ -128,6 +182,18 @@ GET  /v3/order/{order_id}              # get single order
 POST /v3/order/{order_id}/cancel       # cancel order
 ```
 
+### Filtering `GET /v3/orders`
+```http
+GET /v3/orders?page=1&size=30
+  &search_input=james                                  # patient name/DOB/email/user id/client id/order id/order tx id
+  &start_date=2026-06-05 00:00:00&end_date=2026-07-04 23:59:59         # created-at window
+  &updated_start_date=2026-06-28 00:00:00&updated_end_date=2026-07-04 23:59:59  # updated-at window
+  &user_id=<uuid>                                      # restrict to one user
+```
+Returns a `{ "orders": [...], "total", "page", "size" }` envelope. `search_input` filters server-side
+(`total: 0` when nothing matches). Dates accept `YYYY-MM-DD` or `YYYY-MM-DD HH:MM:SS`. All filters are
+optional and combine. Exposed as the `list_lab_orders` MCP tool (user_id + search_input + both date windows).
+
 ## PSC Appointment Scheduling (Walk-in, Quest only)
 ```http
 GET  /v3/order/area/info?zip_code=...                # check coverage + supported_bill_types
@@ -179,6 +245,38 @@ Response:
   "order_transaction": { "id": "...", "status": "...", "orders": [...] }
 }
 ```
+
+### Search results across patients
+```http
+GET /v3/result?search_input=maria&results_limit=10
+  &created_at_start=2026-06-05 00:00:00&created_at_end=2026-07-04 23:59:59
+```
+Returns a cursor-paginated list of result *summaries* (not the full marker breakdown):
+```json
+{
+  "data": [
+    {
+      "id": "e972bd13-...", "user_id": "20a5636d-...",
+      "interpretation": "abnormal", "has_missing_results": null,
+      "date_collected": "2023-02-20T00:00:00+00:00", "created_at": "2026-07-03T00:54:34+00:00",
+      "order": { "id": "7aa0dc13-...", "last_status": "completed", "last_status_timestamp": "..." },
+      "patient_details": { "first_name": "Maria", "last_name": "Delgado", "email": "..." },
+      "lab": { "id": 6, "name": "Labcorp", "slug": "labcorp" },
+      "lab_test": { "id": "b439efda-...", "name": "Lipid Panel: At Home", "method": "at_home_phlebotomy" }
+    }
+  ],
+  "next_cursor": "PmR0OjIw..."   // opaque; pass back as next_cursor to page
+}
+```
+| Param | Notes |
+|---|---|
+| `search_input` | patient name, order id, or client_user_id |
+| `created_at_start` / `created_at_end` | `YYYY-MM-DD` or `YYYY-MM-DD HH:MM:SS` |
+| `results_limit` | page size (default 10) |
+| `next_cursor` | opaque cursor from the previous response |
+
+Use this to find results by interpretation flag ("show me abnormal results") or patient, then call
+`GET /v3/order/{order_id}/result` for the full marker breakdown. Exposed as the `search_lab_results` MCP tool.
 
 ### Get PDF results
 ```http

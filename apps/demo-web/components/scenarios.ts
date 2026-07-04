@@ -15,9 +15,15 @@ export interface Scenario {
 export const SCENARIOS: Scenario[] = [
   {
     label: "Review the completed lab orders and flag anything abnormal.",
-    sub: "→ list_lab_orders · get_lab_results",
+    sub: "→ search_lab_results · get_lab_results",
     prompt:
       "Review the completed lab orders and flag any abnormal or critical results. For each out-of-range marker, tell me the value, the reference range, and what it might mean.",
+  },
+  {
+    label: "Find Maria's lab results and which tests measure glucose.",
+    sub: "→ search_users · search_lab_results · search_lab_markers",
+    prompt:
+      "Look up the patient named Maria, summarize her most recent lab results (highlighting anything out of range), and tell me which lab tests in the catalog measure glucose.",
   },
   {
     label: "How did glucose trend for the FreeStyle demo user last week?",

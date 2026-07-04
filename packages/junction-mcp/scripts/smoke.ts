@@ -68,6 +68,7 @@ async function main() {
   const abnormalOrder = state.orders.completed_testkit_abnormal.orderId;
 
   await step("listUsers", () => client.listUsers());
+  await step("searchUsers(mcp)", () => client.searchUsers({ search_input: "mcp", limit: 5 }));
   await step("getUserConnections(multi)", () => client.getUserConnections(multiUser));
   await step("sleep summary (multi, 7d)", () =>
     client.getSummary("sleep", multiUser, daysAgo(7), daysAgo(0)),
@@ -82,9 +83,19 @@ async function main() {
     client.getTimeseries(cgmUser, "glucose", daysAgo(1), daysAgo(0)),
   );
   await step("listLabTests", () => client.listLabTests());
+  await step("searchLabTests(name=panel)", () =>
+    client.searchLabTests({ name: "panel", lab_test_limit: 3 }),
+  );
+  await step("searchLabMarkers(name=glucose)", () =>
+    client.searchLabMarkers({ name: "glucose", size: 3 }),
+  );
   await step("listOrders", () => client.listOrders({ size: 5 }));
+  await step("listOrders(search_input)", () =>
+    client.listOrders({ search_input: "james", size: 5 }),
+  );
   await step("getOrder(abnormal)", () => client.getOrder(abnormalOrder));
   await step("getOrderResults(abnormal)", () => client.getOrderResults(abnormalOrder));
+  await step("searchResults(limit=3)", () => client.searchResults({ results_limit: 3 }));
 }
 
 main();

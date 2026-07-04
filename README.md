@@ -28,20 +28,29 @@ docs/                   # Architecture and API reference
 The demo app depends on the core via `"junction-mcp": "workspace:*"` and imports it as a
 bare specifier — consuming the MCP server exactly like any external package would.
 
-## Tools (v1)
+## Tools
 
 | Tool | Wraps |
 |---|---|
-| `list_users` | `GET /v2/user/` — sandbox users + connected sources |
+| `list_users` | `GET /v2/user/` — every sandbox user + connected sources (no filter) |
+| `search_users` | `GET /v2/user/search` — find users by name, email, phone, or client_user_id |
 | `get_user_connections` | `GET /v2/user/providers/{user_id}` — providers + resource availability |
 | `get_wearable_summary` | `GET /v2/summary/{activity\|sleep\|workouts\|body}/{user_id}` |
 | `get_wearable_timeseries` | `GET /v2/timeseries/{user_id}/{resource}` — 10 metrics (glucose, heartrate, hrv, …), with stats + downsampling to ≤400 points |
-| `list_lab_tests` | `GET /v3/lab_tests/` — orderable test catalog with markers |
-| `list_lab_orders` | `GET /v3/orders` — orders with lifecycle statuses |
+| `list_lab_tests` | `GET /v3/lab_tests/` — full orderable test catalog with markers |
+| `search_lab_tests` | `GET /v3/lab_test` — search the test catalog by name, with pagination |
+| `search_lab_markers` | `GET /v3/lab_tests/markers` — search the marker/panel compendium (LOINC, units, provider ids) |
+| `list_lab_orders` | `GET /v3/orders` — orders by user, free-text search, or date window, with lifecycle statuses |
 | `get_lab_order` | `GET /v3/order/{order_id}` — status, events, tracking |
 | `get_lab_results` | `GET /v3/order/{order_id}/result` — marker-level results with ranges + interpretations |
+| `search_lab_results` | `GET /v3/result` — search results across patients by name/order/date, with interpretation flags |
 
 All inputs are Zod-validated; Junction errors come back as agent-friendly tool errors, never protocol errors.
+
+**Discovery vs. detail:** the `search_*` tools filter server-side and are the preferred entry point when the
+agent already knows something about who or what it's looking for (a name, a marker, an abnormal flag). The
+`list_*` tools dump the whole collection and are best for small sandbox teams or a first look. Search a
+result across patients with `search_lab_results`, then drill into one order with `get_lab_results`.
 
 ## Endpoints
 

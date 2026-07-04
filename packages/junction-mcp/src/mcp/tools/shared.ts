@@ -17,6 +17,14 @@ export const dateSchema = z
   .string()
   .regex(/^\d{4}-\d{2}-\d{2}$/, "Expected YYYY-MM-DD");
 
+/** A date or full timestamp, as the lab order/result search endpoints accept. */
+export const dateTimeSchema = z
+  .string()
+  .regex(
+    /^\d{4}-\d{2}-\d{2}([ T]\d{2}:\d{2}:\d{2})?$/,
+    "Expected YYYY-MM-DD or 'YYYY-MM-DD HH:MM:SS'",
+  );
+
 /** Widest date window a single wearable-data call may span. */
 export const MAX_RANGE_DAYS = 31;
 

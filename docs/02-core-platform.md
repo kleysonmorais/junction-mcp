@@ -27,6 +27,25 @@ GET /v2/user/{user_id}
 GET /v2/users
 ```
 
+### Search Users
+```http
+GET /v2/user/search?search_input=angela&limit=30&order_key=created_on&order_direction=asc
+```
+`search_input` is **required** (400 if omitted) and matches against name, email, phone number,
+`client_user_id`, and Junction `user_id`. Returns a `{ "users": [...] }` envelope where each user
+carries full demographics (`first_name`, `last_name`, `email`, `phone_number`, `dob`, `gender`, …)
+and `connected_sources`.
+
+| Param | Notes |
+|---|---|
+| `search_input` | required, free text |
+| `limit` | default 30 |
+| `order_key` | `created_on` \| `client_user_id` \| `first_name` \| `last_name` \| `email` \| `phone_number` |
+| `order_direction` | `asc` \| `desc` |
+
+Prefer this over `GET /v2/user/` (which dumps the entire team unfiltered) whenever you already
+know something about the person. Exposed as the `search_users` MCP tool.
+
 ### Update User
 ```http
 PATCH /v2/user/{user_id}

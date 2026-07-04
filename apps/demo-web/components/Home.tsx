@@ -128,14 +128,18 @@ function CopyButton({ text, label = "Copy" }: { text: string; label?: string }) 
  * ------------------------------------------------------------------ */
 
 const TOOLS = [
-  ["list_users", "Sandbox users + their connected sources", "GET /v2/user/"],
+  ["list_users", "Every sandbox user + their connected sources", "GET /v2/user/"],
+  ["search_users", "Find users by name, email, phone or client id", "GET /v2/user/search"],
   ["get_user_connections", "Providers + resource availability per user", "GET /v2/user/providers/…"],
   ["get_wearable_summary", "Daily aggregates — sleep, activity, workouts, body", "GET /v2/summary/…"],
   ["get_wearable_timeseries", "10 intraday metrics with stats + downsampling to ≤400 points", "GET /v2/timeseries/…"],
-  ["list_lab_tests", "Orderable test catalog with markers", "GET /v3/lab_tests/"],
-  ["list_lab_orders", "Orders with lifecycle statuses", "GET /v3/orders"],
+  ["list_lab_tests", "Full orderable test catalog with markers", "GET /v3/lab_tests/"],
+  ["search_lab_tests", "Search the test catalog by name, paginated", "GET /v3/lab_test"],
+  ["search_lab_markers", "Search the marker compendium — LOINC, units, ids", "GET /v3/lab_tests/markers"],
+  ["list_lab_orders", "Orders by user, search or date window", "GET /v3/orders"],
   ["get_lab_order", "Status, events + tracking for one order", "GET /v3/order/…"],
   ["get_lab_results", "Marker-level results with ranges + interpretations", "GET /v3/order/…/result"],
+  ["search_lab_results", "Search results across patients by name/date/flag", "GET /v3/result"],
 ] as const;
 
 const CLIENTS = [
@@ -219,7 +223,7 @@ function Hero() {
           </GhostButton>
         </div>
         <div className="mt-6 flex flex-wrap gap-2">
-          <Chip>8 MCP tools</Chip>
+          <Chip>12 MCP tools</Chip>
           <Chip>Streamable HTTP + stdio</Chip>
           <Chip>synthetic sandbox · MIT</Chip>
         </div>
@@ -263,7 +267,7 @@ function ChatPreview() {
           className="w-fit rounded-lg border px-3 py-1.5 font-mono text-xs"
           style={{ borderColor: "var(--line)", color: "var(--sub)", background: "var(--panel2)" }}
         >
-          → list_lab_orders()
+          → search_lab_results(interpretation flags)
         </div>
         <div
           className="w-fit rounded-lg border px-3 py-1.5 font-mono text-xs"
@@ -309,7 +313,7 @@ function ByocBar() {
 function ToolsSection() {
   return (
     <section className="mt-16">
-      <SectionHeading title="Eight tools, the whole sandbox" aside="users · wearables · lab testing" />
+      <SectionHeading title="Twelve tools, the whole sandbox" aside="users · wearables · lab testing" />
       <div
         className="overflow-hidden rounded-2xl border"
         style={{ background: "var(--panel)", borderColor: "var(--line)", boxShadow: "var(--shadow)" }}

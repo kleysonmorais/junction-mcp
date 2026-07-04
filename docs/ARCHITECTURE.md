@@ -44,7 +44,7 @@ Local MCP client (Claude Desktop / Inspector)
 
 One transport-agnostic core, three entry points. `registerJunctionTools()` in
 [packages/junction-mcp/src/mcp/server.ts](../packages/junction-mcp/src/mcp/server.ts)
-binds the 8 tools to a `JunctionClient` instance; the HTTP routes, the stdio
+binds the 12 tools to a `JunctionClient` instance; the HTTP routes, the stdio
 binary, and the agent all reuse it unchanged. Only *how the Junction key
 arrives* differs per entry point.
 
