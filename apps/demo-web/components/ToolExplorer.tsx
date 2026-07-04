@@ -175,12 +175,6 @@ export default function ToolExplorer() {
               >
                 {selected.title}
               </h2>
-              <span
-                className="text-sm bg-gray-300 px-1 rounded opacity-80"
-                style={{ color: "var(--sub)" }}
-              >
-                {selected.name}
-              </span>
               <p
                 className="mt-1 text-sm leading-relaxed"
                 style={{ color: "var(--sub)" }}
