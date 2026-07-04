@@ -17,6 +17,8 @@ export default function ToolExplorer() {
   const [running, setRunning] = useState(false);
   const [callError, setCallError] = useState<string | null>(null);
 
+  console.log(tools);
+
   useEffect(() => {
     listTools()
       .then((t) => {
@@ -85,7 +87,10 @@ export default function ToolExplorer() {
   return (
     <div className="jmcp-rise mx-auto max-w-5xl px-4 pb-16 pt-10">
       <header className="mb-6">
-        <h1 className="text-2xl font-semibold tracking-tight" style={{ color: "var(--ink)" }}>
+        <h1
+          className="text-2xl font-semibold tracking-tight"
+          style={{ color: "var(--ink)" }}
+        >
           Tool Explorer
         </h1>
         <p className="mt-1 text-sm" style={{ color: "var(--sub)" }}>
@@ -116,13 +121,16 @@ export default function ToolExplorer() {
                       fontWeight: active ? 600 : 400,
                     }}
                   >
-                    {tool.name}
+                    {tool.title ?? tool.name}
                   </button>
                 </li>
               );
             })}
             {tools.length === 0 && (
-              <li className="px-3 py-2 text-sm" style={{ color: "var(--faint)" }}>
+              <li
+                className="px-3 py-2 text-sm"
+                style={{ color: "var(--faint)" }}
+              >
                 Loading…
               </li>
             )}
@@ -133,10 +141,22 @@ export default function ToolExplorer() {
         {selected && (
           <div className="min-w-0 flex-1 space-y-4">
             <div>
-              <h2 className="font-mono text-lg" style={{ color: "var(--accent-text)" }}>
-                {selected.name}
+              <h2
+                className="font-mono text-lg"
+                style={{ color: "var(--accent-text)" }}
+              >
+                {selected.title}
               </h2>
-              <p className="mt-1 text-sm leading-relaxed" style={{ color: "var(--sub)" }}>
+              <span
+                className="text-sm bg-gray-300 px-1 rounded opacity-80"
+                style={{ color: "var(--sub)" }}
+              >
+                {selected.name}
+              </span>
+              <p
+                className="mt-1 text-sm leading-relaxed"
+                style={{ color: "var(--sub)" }}
+              >
                 {selected.description}
               </p>
             </div>
@@ -144,29 +164,43 @@ export default function ToolExplorer() {
             {Object.keys(props).length > 0 && (
               <div
                 className="space-y-3 rounded-xl border p-4"
-                style={{ borderColor: "var(--line)", background: "var(--panel)" }}
+                style={{
+                  borderColor: "var(--line)",
+                  background: "var(--panel)",
+                }}
               >
                 {Object.entries(props).map(([key, schema]) => (
                   <label key={key} className="block">
                     <span className="mb-1 flex items-baseline gap-2 text-sm">
-                      <span className="font-mono" style={{ color: "var(--ink)" }}>
+                      <span
+                        className="font-mono"
+                        style={{ color: "var(--ink)" }}
+                      >
                         {key}
                       </span>
                       {required.has(key) && (
-                        <span className="text-xs" style={{ color: "var(--accent-text)" }}>
+                        <span
+                          className="text-xs"
+                          style={{ color: "var(--accent-text)" }}
+                        >
                           required
                         </span>
                       )}
                     </span>
                     {schema.description && (
-                      <span className="mb-1.5 block text-xs" style={{ color: "var(--faint)" }}>
+                      <span
+                        className="mb-1.5 block text-xs"
+                        style={{ color: "var(--faint)" }}
+                      >
                         {schema.description}
                       </span>
                     )}
                     {schema.enum ? (
                       <select
                         value={args[key] ?? ""}
-                        onChange={(e) => setArgs({ ...args, [key]: e.target.value })}
+                        onChange={(e) =>
+                          setArgs({ ...args, [key]: e.target.value })
+                        }
                         className="w-full rounded-lg border px-3 py-1.5 text-sm"
                         style={inputStyle}
                       >
@@ -185,7 +219,9 @@ export default function ToolExplorer() {
                             : "text"
                         }
                         value={args[key] ?? ""}
-                        onChange={(e) => setArgs({ ...args, [key]: e.target.value })}
+                        onChange={(e) =>
+                          setArgs({ ...args, [key]: e.target.value })
+                        }
                         placeholder={schema.type === "string" ? "…" : ""}
                         className="w-full rounded-lg border px-3 py-1.5 font-mono text-sm"
                         style={inputStyle}
