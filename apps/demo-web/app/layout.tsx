@@ -16,10 +16,44 @@ const plexMono = IBM_Plex_Mono({
   display: "swap",
 });
 
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+const SITE_NAME = "junction-mcp";
+const SITE_DESCRIPTION =
+  "Open-source MCP server exposing wearable and lab data from the Junction sandbox API to AI agents.";
+
 export const metadata: Metadata = {
-  title: "junction-mcp — health data MCP server",
-  description:
-    "Open-source MCP server exposing wearable and lab data from the Junction sandbox API to AI agents.",
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: `${SITE_NAME} — health data MCP server`,
+    template: `%s · ${SITE_NAME}`,
+  },
+  description: SITE_DESCRIPTION,
+  keywords: [
+    "MCP",
+    "Model Context Protocol",
+    "wearables",
+    "lab results",
+    "health data",
+    "AI agents",
+    "Junction API",
+  ],
+  authors: [{ name: "Kleyson Morais", url: "https://www.linkedin.com/in/kleysonmorais" }],
+  openGraph: {
+    type: "website",
+    url: SITE_URL,
+    siteName: SITE_NAME,
+    title: `${SITE_NAME} — health data MCP server`,
+    description: SITE_DESCRIPTION,
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `${SITE_NAME} — health data MCP server`,
+    description: SITE_DESCRIPTION,
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 // Set the theme before first paint to avoid a flash. Defaults to light.
