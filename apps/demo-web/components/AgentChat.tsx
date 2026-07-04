@@ -166,7 +166,7 @@ export default function AgentChat() {
               Ask the sandbox anything.
             </div>
 
-            <div className="mt-3.5 flex w-full max-w-[560px] flex-col gap-2.5">
+            <div className="mt-3.5 grid w-full grid-cols-2 gap-2.5">
               {SCENARIOS.map((s) => (
                 <button
                   key={s.label}
