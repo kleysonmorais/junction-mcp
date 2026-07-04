@@ -1,14 +1,40 @@
 import { anthropic } from "@ai-sdk/anthropic";
 import { experimental_createMCPClient as createMCPClient } from "@ai-sdk/mcp";
+import { openai } from "@ai-sdk/openai";
 import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
 import {
   convertToModelMessages,
   stepCountIs,
   streamText,
+  type LanguageModel,
   type UIMessage,
 } from "ai";
 
 export const maxDuration = 120;
+
+// Provider-agnostic agent layer (Vercel AI SDK). We pick a vendor from the
+// configured env: LLM_PROVIDER wins if set, otherwise we infer from whichever
+// API key is present (Anthropic preferred when both are). CHAT_MODEL overrides
+// the per-provider default model.
+type Provider = "anthropic" | "openai";
+
+const DEFAULT_MODELS: Record<Provider, string> = {
+  anthropic: "claude-opus-4-8",
+  openai: "gpt-4o",
+};
+
+function resolveProvider(): Provider | null {
+  const explicit = process.env.LLM_PROVIDER?.toLowerCase();
+  if (explicit === "anthropic" || explicit === "openai") return explicit;
+  if (process.env.ANTHROPIC_API_KEY) return "anthropic";
+  if (process.env.OPENAI_API_KEY) return "openai";
+  return null;
+}
+
+function resolveModel(provider: Provider): LanguageModel {
+  const model = process.env.CHAT_MODEL ?? DEFAULT_MODELS[provider];
+  return provider === "openai" ? openai(model) : anthropic(model);
+}
 
 const SYSTEM_PROMPT = `You are a health-data assistant demoing junction-mcp, an MCP server over the Junction sandbox API (wearables + lab testing). You answer questions about the sandbox's synthetic users, their wearable data, and their lab orders by calling the MCP tools.
 
@@ -21,12 +47,13 @@ Guidance:
 - Be concise and concrete: cite actual numbers, units, and dates from tool results.`;
 
 export async function POST(req: Request): Promise<Response> {
-  if (!process.env.ANTHROPIC_API_KEY) {
+  const provider = resolveProvider();
+  if (!provider) {
     return Response.json(
       {
         error:
-          "Agent Chat is not configured: ANTHROPIC_API_KEY is unset on the server. " +
-          "The Tool Explorer tab works without it.",
+          "Agent Chat is not configured: set ANTHROPIC_API_KEY or OPENAI_API_KEY " +
+          "on the server. The Tool Explorer tab works without it.",
       },
       { status: 500 },
     );
@@ -45,8 +72,7 @@ export async function POST(req: Request): Promise<Response> {
     const tools = await mcpClient.tools();
 
     const result = streamText({
-      // Provider-agnostic agent layer: swap this one line to change LLM vendor.
-      model: anthropic(process.env.CHAT_MODEL ?? "claude-opus-4-8"),
+      model: resolveModel(provider),
       system: SYSTEM_PROMPT.replace("{{TODAY}}", new Date().toISOString().slice(0, 10)),
       messages: convertToModelMessages(messages),
       tools,
