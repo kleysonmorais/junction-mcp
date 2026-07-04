@@ -76,7 +76,11 @@
   --nav-bg: rgba(36, 36, 40, 0.82);
   --shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
   --shadow-lg: 0 10px 32px rgba(0, 0, 0, 0.45);
-  --glow: radial-gradient(closest-side, rgba(110, 59, 100, 0.38), transparent 70%);
+  --glow: radial-gradient(
+    closest-side,
+    rgba(110, 59, 100, 0.38),
+    transparent 70%
+  );
 }
 
 /* Expose tokens to Tailwind's `theme()` and arbitrary values */
@@ -108,7 +112,9 @@ body {
   color: var(--ink);
   font-family: var(--font-onest), system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
-  transition: background 0.2s ease, color 0.2s ease;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease;
 }
 
 ::selection {
@@ -173,9 +179,6 @@ body {
 }
 .jmcp-spin {
   animation: jmcpSpin 0.7s linear infinite;
-}
-.jmcp-blink {
-  animation: jmcpBlink 1s steps(1) infinite;
 }
 
 /* Diagonal-stripe placeholder used for screenshot cards */

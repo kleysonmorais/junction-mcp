@@ -3,6 +3,12 @@
 import { useChat } from "@ai-sdk/react";
 import { useEffect, useRef, useState } from "react";
 import { SCENARIOS } from "./scenarios";
+import { JsonView } from "./JsonView";
+
+function toJsonText(value: unknown): string {
+  if (typeof value === "string") return value;
+  return JSON.stringify(value ?? null, null, 2);
+}
 
 interface ToolPartLike {
   type: string;
@@ -46,27 +52,29 @@ function ToolCallChip({ part }: { part: ToolPartLike }) {
       </button>
       {open && (
         <div
-          className="mt-1.5 max-h-64 overflow-auto rounded-md border p-3 font-mono text-xs"
+          className="mt-1.5 max-h-72 overflow-auto rounded-xl border p-4 text-xs leading-relaxed"
           style={{
             borderColor: "var(--line)",
             background: "var(--code-bg)",
             color: "var(--code-text)",
           }}
         >
-          <div style={{ color: "var(--code-dim)" }}>input</div>
-          <pre className="whitespace-pre-wrap wrap-break-word">
-            {JSON.stringify(part.input, null, 2)}
-          </pre>
+          <div
+            className="mb-1 font-mono text-[10.5px] uppercase tracking-wider"
+            style={{ color: "var(--code-dim)" }}
+          >
+            input
+          </div>
+          <JsonView text={toJsonText(part.input)} />
           {part.output !== undefined && (
             <>
-              <div className="mt-3" style={{ color: "var(--code-dim)" }}>
+              <div
+                className="mb-1 mt-3 font-mono text-[10.5px] uppercase tracking-wider"
+                style={{ color: "var(--code-dim)" }}
+              >
                 output
               </div>
-              <pre className="whitespace-pre-wrap wrap-break-word">
-                {typeof part.output === "string"
-                  ? part.output
-                  : JSON.stringify(part.output, null, 2).slice(0, 4000)}
-              </pre>
+              <JsonView text={toJsonText(part.output)} />
             </>
           )}
         </div>
@@ -241,12 +249,6 @@ export default function AgentChat() {
                         }}
                       >
                         {part.text}
-                        {busy && (
-                          <span
-                            className="jmcp-blink ml-0.5 inline-block h-[15px] w-[7px] rounded-sm align-text-bottom"
-                            style={{ background: "var(--accent-text)" }}
-                          />
-                        )}
                       </div>
                     );
                   }
