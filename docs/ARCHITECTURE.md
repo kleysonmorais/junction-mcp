@@ -48,6 +48,10 @@ binds the 12 tools to a `JunctionClient` instance; the HTTP routes, the stdio
 binary, and the agent all reuse it unchanged. Only *how the Junction key
 arrives* differs per entry point.
 
+> Adding a tool? Follow [ADDING-A-TOOL.md](ADDING-A-TOOL.md) — it lists every
+> surface a new tool touches (client, registration, smoke test, agent prompt,
+> home page, docs) so none get missed.
+
 ## Request flow (Agent Chat)
 
 1. The browser posts the conversation to `/api/chat`.
