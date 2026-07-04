@@ -130,7 +130,7 @@ export default function AgentChat() {
             className="jmcp-pulse inline-block h-1.5 w-1.5 rounded-full"
             style={{ background: "var(--ok)" }}
           />
-          sandbox demo · synthetic data
+          sandbox
         </span>
         {!empty && (
           <button
@@ -141,13 +141,6 @@ export default function AgentChat() {
             Clear conversation
           </button>
         )}
-      </div>
-      <div
-        className="mb-2 mt-1 text-[12.5px]"
-        style={{ color: "var(--faint)" }}
-      >
-        Vercel AI SDK agent · streams over{" "}
-        <code className="font-mono text-[11.5px]">POST /mcp-demo</code>
       </div>
 
       {/* Transcript */}

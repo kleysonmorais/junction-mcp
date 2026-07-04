@@ -18,7 +18,10 @@ function Chip({ children }: { children: React.ReactNode }) {
         color: "var(--sub)",
       }}
     >
-      <span className="h-1.5 w-1.5 rounded-full" style={{ background: "var(--accent)" }} />
+      <span
+        className="h-1.5 w-1.5 rounded-full"
+        style={{ background: "var(--accent)" }}
+      />
       {children}
     </span>
   );
@@ -53,7 +56,13 @@ function PrimaryButton({
   } as const;
   if (href)
     return (
-      <a href={href} target="_blank" rel="noreferrer" className={cls} style={style}>
+      <a
+        href={href}
+        target="_blank"
+        rel="noreferrer"
+        className={cls}
+        style={style}
+      >
         {children}
       </a>
     );
@@ -86,16 +95,13 @@ function GhostButton({
   );
 }
 
-function SectionHeading({
-  title,
-  aside,
-}: {
-  title: string;
-  aside: string;
-}) {
+function SectionHeading({ title, aside }: { title: string; aside: string }) {
   return (
     <div className="mb-6 flex flex-wrap items-baseline gap-3">
-      <h2 className="text-2xl font-semibold tracking-tight" style={{ color: "var(--ink)" }}>
+      <h2
+        className="text-2xl font-semibold tracking-tight"
+        style={{ color: "var(--ink)" }}
+      >
         {title}
       </h2>
       <span className="text-sm" style={{ color: "var(--faint)" }}>
@@ -105,7 +111,13 @@ function SectionHeading({
   );
 }
 
-function CopyButton({ text, label = "Copy" }: { text: string; label?: string }) {
+function CopyButton({
+  text,
+  label = "Copy",
+}: {
+  text: string;
+  label?: string;
+}) {
   const [copied, setCopied] = useState(false);
   return (
     <button
@@ -128,18 +140,66 @@ function CopyButton({ text, label = "Copy" }: { text: string; label?: string }) 
  * ------------------------------------------------------------------ */
 
 const TOOLS = [
-  ["list_users", "Every sandbox user + their connected sources", "GET /v2/user/"],
-  ["search_users", "Find users by name, email, phone or client id", "GET /v2/user/search"],
-  ["get_user_connections", "Providers + resource availability per user", "GET /v2/user/providers/…"],
-  ["get_wearable_summary", "Daily aggregates — sleep, activity, workouts, body", "GET /v2/summary/…"],
-  ["get_wearable_timeseries", "10 intraday metrics with stats + downsampling to ≤400 points", "GET /v2/timeseries/…"],
-  ["list_lab_tests", "Full orderable test catalog with markers", "GET /v3/lab_tests/"],
-  ["search_lab_tests", "Search the test catalog by name, paginated", "GET /v3/lab_test"],
-  ["search_lab_markers", "Search the marker compendium — LOINC, units, ids", "GET /v3/lab_tests/markers"],
-  ["list_lab_orders", "Orders by user, search or date window", "GET /v3/orders"],
-  ["get_lab_order", "Status, events + tracking for one order", "GET /v3/order/…"],
-  ["get_lab_results", "Marker-level results with ranges + interpretations", "GET /v3/order/…/result"],
-  ["search_lab_results", "Search results across patients by name/date/flag", "GET /v3/result"],
+  [
+    "list_users",
+    "Every sandbox user + their connected sources",
+    "GET /v2/user/",
+  ],
+  [
+    "search_users",
+    "Find users by name, email, phone or client id",
+    "GET /v2/user/search",
+  ],
+  [
+    "get_user_connections",
+    "Providers + resource availability per user",
+    "GET /v2/user/providers/…",
+  ],
+  [
+    "get_wearable_summary",
+    "Daily aggregates — sleep, activity, workouts, body",
+    "GET /v2/summary/…",
+  ],
+  [
+    "get_wearable_timeseries",
+    "10 intraday metrics with stats + downsampling to ≤400 points",
+    "GET /v2/timeseries/…",
+  ],
+  [
+    "list_lab_tests",
+    "Full orderable test catalog with markers",
+    "GET /v3/lab_tests/",
+  ],
+  [
+    "search_lab_tests",
+    "Search the test catalog by name, paginated",
+    "GET /v3/lab_test",
+  ],
+  [
+    "search_lab_markers",
+    "Search the marker compendium — LOINC, units, ids",
+    "GET /v3/lab_tests/markers",
+  ],
+  [
+    "list_lab_orders",
+    "Orders by user, search or date window",
+    "GET /v3/orders",
+  ],
+  [
+    "get_lab_order",
+    "Status, events + tracking for one order",
+    "GET /v3/order/…",
+  ],
+  [
+    "get_lab_results",
+    "Marker-level results with ranges + interpretations",
+    "GET /v3/order/…/result",
+  ],
+  [
+    "search_lab_results",
+    "Search results across patients by name/date/flag",
+    "GET /v3/result",
+  ],
 ] as const;
 
 const CLIENTS = [
@@ -209,10 +269,13 @@ function Hero() {
         >
           Your health data, fluent in natural language.
         </h1>
-        <p className="mt-5 max-w-xl text-[15px] leading-relaxed" style={{ color: "var(--sub)" }}>
-          junction-mcp exposes Junction&rsquo;s wearable streams and lab testing to AI
-          agents over MCP. Ask about glucose trends or flag abnormal labs — natural
-          language in, real tool calls out.
+        <p
+          className="mt-5 max-w-xl text-[15px] leading-relaxed"
+          style={{ color: "var(--sub)" }}
+        >
+          junction-mcp exposes Junction&rsquo;s wearable streams and lab testing
+          to AI agents over MCP. Ask about glucose trends or flag abnormal labs
+          — natural language in, real tool calls out.
         </p>
         <div className="mt-7 flex flex-wrap gap-3">
           <PrimaryButton to={VIEW_PATHS["Agent Chat"]}>
@@ -225,7 +288,7 @@ function Hero() {
         <div className="mt-6 flex flex-wrap gap-2">
           <Chip>12 MCP tools</Chip>
           <Chip>Streamable HTTP + stdio</Chip>
-          <Chip>synthetic sandbox · MIT</Chip>
+          <Chip>sandbox · MIT</Chip>
         </div>
       </div>
 
@@ -251,7 +314,10 @@ function ChatPreview() {
         className="flex items-center gap-2 border-b pb-3 text-xs"
         style={{ borderColor: "var(--line)", color: "var(--faint)" }}
       >
-        <span className="h-2 w-2 rounded-full" style={{ background: "var(--ok)" }} />
+        <span
+          className="h-2 w-2 rounded-full"
+          style={{ background: "var(--ok)" }}
+        />
         <span className="font-mono">agent chat · live over /mcp-demo</span>
       </div>
 
@@ -265,15 +331,27 @@ function ChatPreview() {
 
         <div
           className="w-fit rounded-lg border px-3 py-1.5 font-mono text-xs"
-          style={{ borderColor: "var(--line)", color: "var(--sub)", background: "var(--panel2)" }}
+          style={{
+            borderColor: "var(--line)",
+            color: "var(--sub)",
+            background: "var(--panel2)",
+          }}
         >
           → search_lab_results(interpretation flags)
         </div>
         <div
           className="w-fit rounded-lg border px-3 py-1.5 font-mono text-xs"
-          style={{ borderColor: "var(--line)", color: "var(--sub)", background: "var(--panel2)" }}
+          style={{
+            borderColor: "var(--line)",
+            color: "var(--sub)",
+            background: "var(--panel2)",
+          }}
         >
-          → get_lab_results(order_id: <span style={{ color: "var(--accent-text)" }}>&quot;ord_7fa2&quot;</span>)
+          → get_lab_results(order_id:{" "}
+          <span style={{ color: "var(--accent-text)" }}>
+            &quot;ord_7fa2&quot;
+          </span>
+          )
         </div>
 
         <div
@@ -281,8 +359,8 @@ function ChatPreview() {
           style={{ background: "var(--panel2)", color: "var(--ink)" }}
         >
           2 of 6 orders are completed. One flag:{" "}
-          <strong>ferritin 9 ng/mL — below range</strong> on the Women&rsquo;s Health
-          panel…
+          <strong>ferritin 9 ng/mL — below range</strong> on the Women&rsquo;s
+          Health panel…
         </div>
       </div>
     </div>
@@ -293,7 +371,11 @@ function ByocBar() {
   return (
     <div
       className="mt-14 flex flex-wrap items-center gap-3 rounded-2xl border px-5 py-3.5"
-      style={{ background: "var(--panel)", borderColor: "var(--line)", boxShadow: "var(--shadow)" }}
+      style={{
+        background: "var(--panel)",
+        borderColor: "var(--line)",
+        boxShadow: "var(--shadow)",
+      }}
     >
       <span
         className="text-xs font-semibold uppercase tracking-wider"
@@ -313,10 +395,17 @@ function ByocBar() {
 function ToolsSection() {
   return (
     <section className="mt-16">
-      <SectionHeading title="Twelve tools, the whole sandbox" aside="users · wearables · lab testing" />
+      <SectionHeading
+        title="Twelve tools, one MCP endpoint"
+        aside="users · wearables · lab testing"
+      />
       <div
         className="overflow-hidden rounded-2xl border"
-        style={{ background: "var(--panel)", borderColor: "var(--line)", boxShadow: "var(--shadow)" }}
+        style={{
+          background: "var(--panel)",
+          borderColor: "var(--line)",
+          boxShadow: "var(--shadow)",
+        }}
       >
         {TOOLS.map(([name, desc, endpoint], i) => (
           <div
@@ -324,23 +413,35 @@ function ToolsSection() {
             className="grid grid-cols-1 items-center gap-1 px-5 py-4 sm:grid-cols-[minmax(0,220px)_1fr_auto] sm:gap-4"
             style={{ borderTop: i === 0 ? "none" : "1px solid var(--line)" }}
           >
-            <span className="font-mono text-sm" style={{ color: "var(--accent-text)" }}>
+            <span
+              className="font-mono text-sm"
+              style={{ color: "var(--accent-text)" }}
+            >
               {name}
             </span>
             <span className="text-sm" style={{ color: "var(--sub)" }}>
               {desc}
             </span>
-            <span className="font-mono text-xs sm:text-right" style={{ color: "var(--faint)" }}>
+            <span
+              className="font-mono text-xs sm:text-right"
+              style={{ color: "var(--faint)" }}
+            >
               {endpoint}
             </span>
           </div>
         ))}
         <div
           className="px-5 py-3.5 text-sm"
-          style={{ borderTop: "1px solid var(--line)", background: "var(--panel2)", color: "var(--sub)" }}
+          style={{
+            borderTop: "1px solid var(--line)",
+            background: "var(--panel2)",
+            color: "var(--sub)",
+          }}
         >
-          All inputs <strong style={{ color: "var(--ink)" }}>Zod-validated</strong> · Junction errors
-          return as agent-friendly tool errors, never protocol errors
+          All inputs{" "}
+          <strong style={{ color: "var(--ink)" }}>Zod-validated</strong> ·
+          Junction errors return as agent-friendly tool errors, never protocol
+          errors
         </div>
       </div>
     </section>
@@ -350,13 +451,20 @@ function ToolsSection() {
 function ClientsSection() {
   return (
     <section className="mt-16">
-      <SectionHeading title="Works with your MCP client" aside="same tools over Streamable HTTP or stdio" />
+      <SectionHeading
+        title="Works with your MCP client"
+        aside="same tools over Streamable HTTP or stdio"
+      />
       <div className="grid gap-5 md:grid-cols-3">
         {CLIENTS.map((c) => (
           <div
             key={c.name}
             className="flex flex-col overflow-hidden rounded-2xl border"
-            style={{ background: "var(--panel)", borderColor: "var(--line)", boxShadow: "var(--shadow)" }}
+            style={{
+              background: "var(--panel)",
+              borderColor: "var(--line)",
+              boxShadow: "var(--shadow)",
+            }}
           >
             <div
               className="jmcp-placeholder flex h-44 items-center justify-center border-b"
@@ -364,17 +472,27 @@ function ClientsSection() {
             >
               <div
                 className="rounded-md border px-3 py-2 text-center font-mono text-[11px]"
-                style={{ borderColor: "var(--line)", background: "var(--panel)", color: "var(--faint)" }}
+                style={{
+                  borderColor: "var(--line)",
+                  background: "var(--panel)",
+                  color: "var(--faint)",
+                }}
               >
                 <div>[ {c.name.toLowerCase()} screenshot ]</div>
                 <div className="opacity-70">replace screenshots/{c.img}</div>
               </div>
             </div>
             <div className="flex flex-1 flex-col p-5">
-              <h3 className="text-base font-semibold" style={{ color: "var(--ink)" }}>
+              <h3
+                className="text-base font-semibold"
+                style={{ color: "var(--ink)" }}
+              >
                 {c.name}
               </h3>
-              <p className="mt-1.5 flex-1 text-sm leading-relaxed" style={{ color: "var(--sub)" }}>
+              <p
+                className="mt-1.5 flex-1 text-sm leading-relaxed"
+                style={{ color: "var(--sub)" }}
+              >
                 {c.desc}
               </p>
               <div className="mt-4">
@@ -394,12 +512,18 @@ function ConnectSection() {
 
   return (
     <section className="mt-16">
-      <SectionHeading title="Connect in one paste" aside="one shared core · three entry points" />
+      <SectionHeading
+        title="Connect in one paste"
+        aside="one shared core · three entry points"
+      />
       <div className="grid gap-6 lg:grid-cols-[1.4fr_1fr]">
         {/* Code panel */}
         <div
           className="overflow-hidden rounded-2xl"
-          style={{ background: "var(--code-bg)", boxShadow: "var(--shadow-lg)" }}
+          style={{
+            background: "var(--code-bg)",
+            boxShadow: "var(--shadow-lg)",
+          }}
         >
           <div className="flex items-center gap-2 px-4 py-3">
             {(["remote", "stdio"] as const).map((t) => {
@@ -410,7 +534,9 @@ function ConnectSection() {
                   onClick={() => setTab(t)}
                   className="rounded-lg px-3 py-1.5 text-xs font-medium transition-colors"
                   style={{
-                    background: active ? "rgba(255,255,255,0.1)" : "transparent",
+                    background: active
+                      ? "rgba(255,255,255,0.1)"
+                      : "transparent",
                     color: active ? "var(--code-text)" : "var(--code-dim)",
                   }}
                 >
@@ -433,18 +559,35 @@ function ConnectSection() {
         {/* Entry points panel */}
         <div
           className="rounded-2xl border p-6"
-          style={{ background: "var(--panel)", borderColor: "var(--line)", boxShadow: "var(--shadow)" }}
+          style={{
+            background: "var(--panel)",
+            borderColor: "var(--line)",
+            boxShadow: "var(--shadow)",
+          }}
         >
-          <h3 className="text-base font-semibold" style={{ color: "var(--ink)" }}>
+          <h3
+            className="text-base font-semibold"
+            style={{ color: "var(--ink)" }}
+          >
             One core, three entry points
           </h3>
           <div className="mt-5 space-y-4">
             {ENDPOINTS.map(([code, note]) => (
-              <div key={code} className="flex items-center justify-between gap-4 border-b pb-4 last:border-0 last:pb-0" style={{ borderColor: "var(--line)" }}>
-                <span className="font-mono text-sm" style={{ color: "var(--ink)" }}>
+              <div
+                key={code}
+                className="flex items-center justify-between gap-4 border-b pb-4 last:border-0 last:pb-0"
+                style={{ borderColor: "var(--line)" }}
+              >
+                <span
+                  className="font-mono text-sm"
+                  style={{ color: "var(--ink)" }}
+                >
                   {code}
                 </span>
-                <span className="text-right text-xs" style={{ color: "var(--faint)" }}>
+                <span
+                  className="text-right text-xs"
+                  style={{ color: "var(--faint)" }}
+                >
                   {note}
                 </span>
               </div>
@@ -452,8 +595,15 @@ function ConnectSection() {
           </div>
           <ul className="mt-6 space-y-2.5">
             {SECURITY.map((s) => (
-              <li key={s} className="flex items-start gap-2.5 text-sm" style={{ color: "var(--sub)" }}>
-                <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: "var(--ok)" }} />
+              <li
+                key={s}
+                className="flex items-start gap-2.5 text-sm"
+                style={{ color: "var(--sub)" }}
+              >
+                <span
+                  className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full"
+                  style={{ background: "var(--ok)" }}
+                />
                 {s}
               </li>
             ))}
@@ -468,18 +618,32 @@ function CtaSection() {
   return (
     <section
       className="mt-16 rounded-2xl border px-6 py-12 text-center"
-      style={{ background: "var(--panel)", borderColor: "var(--line)", boxShadow: "var(--shadow)" }}
+      style={{
+        background: "var(--panel)",
+        borderColor: "var(--line)",
+        boxShadow: "var(--shadow)",
+      }}
     >
-      <h2 className="text-2xl font-semibold tracking-tight" style={{ color: "var(--ink)" }}>
+      <h2
+        className="text-2xl font-semibold tracking-tight"
+        style={{ color: "var(--ink)" }}
+      >
         Zero setup — try it on the demo sandbox key.
       </h2>
-      <p className="mx-auto mt-3 max-w-xl text-sm" style={{ color: "var(--sub)" }}>
-        Agent Chat runs a real agent loop; Tool Explorer hits the raw tools. Nothing to
-        install.
+      <p
+        className="mx-auto mt-3 max-w-xl text-sm"
+        style={{ color: "var(--sub)" }}
+      >
+        Agent Chat runs a real agent loop; Tool Explorer hits the raw tools.
+        Nothing to install.
       </p>
       <div className="mt-7 flex flex-wrap justify-center gap-3">
-        <PrimaryButton to={VIEW_PATHS["Agent Chat"]}>Try Agent Chat →</PrimaryButton>
-        <GhostButton to={VIEW_PATHS["Tool Explorer"]}>Open Tool Explorer</GhostButton>
+        <PrimaryButton to={VIEW_PATHS["Agent Chat"]}>
+          Try Agent Chat →
+        </PrimaryButton>
+        <GhostButton to={VIEW_PATHS["Tool Explorer"]}>
+          Open Tool Explorer
+        </GhostButton>
       </div>
       <a
         href={GITHUB_URL}
