@@ -4,6 +4,7 @@ import { useChat } from "@ai-sdk/react";
 import { useEffect, useRef, useState } from "react";
 import { SCENARIOS } from "./scenarios";
 import { JsonView } from "./JsonView";
+import { Markdown } from "./Markdown";
 
 function toJsonText(value: unknown): string {
   if (typeof value === "string") return value;
@@ -239,16 +240,15 @@ export default function AgentChat() {
                     return (
                       <div
                         key={i}
-                        className="max-w-[88%] whitespace-pre-wrap border px-4 py-3 text-sm leading-relaxed"
+                        className="max-w-[88%] border px-4 py-3"
                         style={{
                           background: "var(--panel)",
-                          color: "var(--ink)",
                           borderColor: "var(--line)",
                           borderRadius: "16px 16px 16px 5px",
                           boxShadow: "var(--shadow)",
                         }}
                       >
-                        {part.text}
+                        <Markdown>{part.text}</Markdown>
                       </div>
                     );
                   }
