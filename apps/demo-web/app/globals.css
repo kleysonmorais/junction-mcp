@@ -29,6 +29,11 @@
   --code-text: #e2e6ec;
   --code-accent: #c79abb;
   --code-dim: rgba(226, 230, 236, 0.5);
+  --json-key: #c79abb;
+  --json-string: #a3e0c0;
+  --json-number: #e0b872;
+  --json-bool: #e08fae;
+  --json-null: rgba(226, 230, 236, 0.5);
   --ok: #237a54;
   --ok-soft: rgba(46, 158, 107, 0.1);
   --ok-line: rgba(46, 158, 107, 0.28);
@@ -60,6 +65,11 @@
   --code-text: #e2e6ec;
   --code-accent: #c79abb;
   --code-dim: rgba(226, 230, 236, 0.45);
+  --json-key: #c79abb;
+  --json-string: #a3e0c0;
+  --json-number: #e0b872;
+  --json-bool: #e08fae;
+  --json-null: rgba(226, 230, 236, 0.45);
   --ok: #5bc28f;
   --ok-soft: rgba(91, 194, 143, 0.12);
   --ok-line: rgba(91, 194, 143, 0.3);

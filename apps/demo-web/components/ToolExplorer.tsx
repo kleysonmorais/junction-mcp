@@ -7,6 +7,7 @@ import {
   type McpToolDef,
   type ToolCallResult,
 } from "./mcp-browser-client";
+import { JsonView } from "./JsonView";
 
 export default function ToolExplorer() {
   const [tools, setTools] = useState<McpToolDef[]>([]);
@@ -290,9 +291,9 @@ export default function ToolExplorer() {
                       }
                 }
               >
-                <pre className="whitespace-pre-wrap wrap-break-word font-mono">
-                  {result.content.map((c) => c.text ?? "").join("\n")}
-                </pre>
+                <JsonView
+                  text={result.content.map((c) => c.text ?? "").join("\n")}
+                />
               </div>
             )}
           </div>
