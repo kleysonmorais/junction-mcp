@@ -47,7 +47,7 @@ export function resolveCallerKey(req: Request): string | Response {
     return unauthorized(
       "Missing Junction API key. This endpoint is bring-your-own-key: send your sandbox key as " +
         "'Authorization: Bearer sk_us_...' (or an 'x-vital-api-key' header). " +
-        "No key yet? Create a free sandbox team at https://app.junction.com — or try the zero-setup demo endpoint at /mcp-demo.",
+        "No key yet? Create a free sandbox team at https://app.junction.com — or try the zero-setup demo endpoint.",
     );
   }
 

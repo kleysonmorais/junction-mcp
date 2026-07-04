@@ -244,7 +244,6 @@ const STDIO_CONFIG = `{
 
 const ENDPOINTS = [
   ["POST /mcp", "Streamable HTTP · your key"],
-  ["POST /mcp-demo", "server key · powers this demo"],
   ["bin/stdio.ts", "stdio · local clients"],
 ] as const;
 
@@ -318,7 +317,7 @@ function ChatPreview() {
           className="h-2 w-2 rounded-full"
           style={{ background: "var(--ok)" }}
         />
-        <span className="font-mono">agent chat · live over /mcp-demo</span>
+        <span className="font-mono">agent chat · live over the demo sandbox</span>
       </div>
 
       <div className="flex flex-col gap-3 pt-4">
@@ -569,7 +568,7 @@ function ConnectSection() {
             className="text-base font-semibold"
             style={{ color: "var(--ink)" }}
           >
-            One core, three entry points
+            One core, two entry points
           </h3>
           <div className="mt-5 space-y-4">
             {ENDPOINTS.map(([code, note]) => (
