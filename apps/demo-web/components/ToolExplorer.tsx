@@ -16,6 +16,7 @@ export default function ToolExplorer() {
   const [result, setResult] = useState<ToolCallResult | null>(null);
   const [running, setRunning] = useState(false);
   const [callError, setCallError] = useState<string | null>(null);
+  const [missingFields, setMissingFields] = useState<Set<string>>(new Set());
 
   console.log(tools);
 
@@ -33,10 +34,22 @@ export default function ToolExplorer() {
     setArgs({});
     setResult(null);
     setCallError(null);
+    setMissingFields(new Set());
   }, []);
 
   async function invoke() {
     if (!selected) return;
+
+    const required = selected.inputSchema.required ?? [];
+    const missing = new Set(
+      required.filter((key) => !args[key] || args[key].trim() === ""),
+    );
+    setMissingFields(missing);
+    if (missing.size > 0) {
+      setCallError("Please fill in all required fields.");
+      return;
+    }
+
     setRunning(true);
     setResult(null);
     setCallError(null);
@@ -83,6 +96,21 @@ export default function ToolExplorer() {
     background: "var(--panel2)",
     color: "var(--ink)",
   } as const;
+
+  const invalidInputStyle = {
+    ...inputStyle,
+    borderColor: "var(--accent-line)",
+  } as const;
+
+  function updateArg(key: string, value: string) {
+    setArgs((prev) => ({ ...prev, [key]: value }));
+    setMissingFields((prev) => {
+      if (!prev.has(key)) return prev;
+      const next = new Set(prev);
+      next.delete(key);
+      return next;
+    });
+  }
 
   return (
     <div className="jmcp-rise mx-auto max-w-5xl px-4 pb-16 pt-10">
@@ -169,66 +197,74 @@ export default function ToolExplorer() {
                   background: "var(--panel)",
                 }}
               >
-                {Object.entries(props).map(([key, schema]) => (
-                  <label key={key} className="block">
-                    <span className="mb-1 flex items-baseline gap-2 text-sm">
-                      <span
-                        className="font-mono"
-                        style={{ color: "var(--ink)" }}
-                      >
-                        {key}
-                      </span>
-                      {required.has(key) && (
+                {Object.entries(props).map(([key, schema]) => {
+                  const invalid = missingFields.has(key);
+                  return (
+                    <label key={key} className="block">
+                      <span className="mb-1 flex items-baseline gap-2 text-sm">
                         <span
-                          className="text-xs"
-                          style={{ color: "var(--accent-text)" }}
+                          className="font-mono"
+                          style={{ color: "var(--ink)" }}
                         >
-                          required
+                          {key}
+                        </span>
+                        {required.has(key) && (
+                          <span
+                            className="text-xs"
+                            style={{ color: "var(--accent-text)" }}
+                          >
+                            required
+                          </span>
+                        )}
+                      </span>
+                      {schema.description && (
+                        <span
+                          className="mb-1.5 block text-xs"
+                          style={{ color: "var(--faint)" }}
+                        >
+                          {schema.description}
                         </span>
                       )}
-                    </span>
-                    {schema.description && (
-                      <span
-                        className="mb-1.5 block text-xs"
-                        style={{ color: "var(--faint)" }}
-                      >
-                        {schema.description}
-                      </span>
-                    )}
-                    {schema.enum ? (
-                      <select
-                        value={args[key] ?? ""}
-                        onChange={(e) =>
-                          setArgs({ ...args, [key]: e.target.value })
-                        }
-                        className="w-full rounded-lg border px-3 py-1.5 text-sm"
-                        style={inputStyle}
-                      >
-                        <option value="">— select —</option>
-                        {schema.enum.map((v) => (
-                          <option key={v} value={v}>
-                            {v}
-                          </option>
-                        ))}
-                      </select>
-                    ) : (
-                      <input
-                        type={
-                          schema.type === "number" || schema.type === "integer"
-                            ? "number"
-                            : "text"
-                        }
-                        value={args[key] ?? ""}
-                        onChange={(e) =>
-                          setArgs({ ...args, [key]: e.target.value })
-                        }
-                        placeholder={schema.type === "string" ? "…" : ""}
-                        className="w-full rounded-lg border px-3 py-1.5 font-mono text-sm"
-                        style={inputStyle}
-                      />
-                    )}
-                  </label>
-                ))}
+                      {schema.enum ? (
+                        <select
+                          value={args[key] ?? ""}
+                          onChange={(e) => updateArg(key, e.target.value)}
+                          className="w-full rounded-lg border px-3 py-1.5 text-sm"
+                          style={invalid ? invalidInputStyle : inputStyle}
+                        >
+                          <option value="">— select —</option>
+                          {schema.enum.map((v) => (
+                            <option key={v} value={v}>
+                              {v}
+                            </option>
+                          ))}
+                        </select>
+                      ) : (
+                        <input
+                          type={
+                            schema.type === "number" ||
+                            schema.type === "integer"
+                              ? "number"
+                              : "text"
+                          }
+                          value={args[key] ?? ""}
+                          onChange={(e) => updateArg(key, e.target.value)}
+                          placeholder={schema.type === "string" ? "…" : ""}
+                          className="w-full rounded-lg border px-3 py-1.5 font-mono text-sm"
+                          style={invalid ? invalidInputStyle : inputStyle}
+                        />
+                      )}
+                      {invalid && (
+                        <span
+                          className="mt-1 block text-xs"
+                          style={{ color: "var(--accent-text)" }}
+                        >
+                          This field is required.
+                        </span>
+                      )}
+                    </label>
+                  );
+                })}
               </div>
             )}
 
@@ -260,7 +296,7 @@ export default function ToolExplorer() {
                       }
                 }
               >
-                <pre className="whitespace-pre-wrap break-words font-mono">
+                <pre className="whitespace-pre-wrap wrap-break-word font-mono">
                   {result.content.map((c) => c.text ?? "").join("\n")}
                 </pre>
               </div>
