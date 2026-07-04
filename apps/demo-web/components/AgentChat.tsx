@@ -325,8 +325,7 @@ export default function AgentChat() {
         className="mx-0.5 mb-3.5 mt-2 text-[11.5px]"
         style={{ color: "var(--faint)" }}
       >
-        Live over the demo sandbox — the agent streams real tool calls
-        server-side.
+        Live over the sandbox — the agent streams real tool calls server-side.
       </div>
     </div>
   );

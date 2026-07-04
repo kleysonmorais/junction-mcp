@@ -317,7 +317,7 @@ function ChatPreview() {
           className="h-2 w-2 rounded-full"
           style={{ background: "var(--ok)" }}
         />
-        <span className="font-mono">agent chat · live over the demo sandbox</span>
+        <span className="font-mono">agent chat · live over the sandbox</span>
       </div>
 
       <div className="flex flex-col gap-3 pt-4">
@@ -627,7 +627,7 @@ function CtaSection() {
         className="text-2xl font-semibold tracking-tight"
         style={{ color: "var(--ink)" }}
       >
-        Zero setup — try it on the demo sandbox key.
+        Zero setup — try it on the sandbox key.
       </h2>
       <p
         className="mx-auto mt-3 max-w-xl text-sm"

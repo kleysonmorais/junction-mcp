@@ -81,7 +81,7 @@ export default function ToolExplorer() {
     return (
       <div className="mx-auto max-w-4xl px-4 pt-10">
         <div className="rounded-xl border p-4 text-sm" style={errorBox}>
-          Failed to load tools from the demo sandbox: {loadError}
+          Failed to load tools from the sandbox: {loadError}
         </div>
       </div>
     );

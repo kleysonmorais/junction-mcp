@@ -139,7 +139,7 @@ Set the environment variables `JUNCTION_API_KEY` and `ANTHROPIC_API_KEY` in the 
 - **Origin validation** on both MCP endpoints (DNS-rebinding guard per the MCP spec) — browser requests must come from the deployment's own origin, localhost, or `ALLOWED_ORIGINS`.
 - **Stateless Streamable HTTP** — no sessions to hijack; each request is independent.
 - **`/mcp` validates the caller's key shape** before ever forwarding it upstream, and returns a friendly `401` when missing or malformed.
-- **Secrets stay server-side** — the demo sandbox key and LLM key live only in env vars; nothing is sent to the browser or put in URLs.
+- **Secrets stay server-side** — the sandbox key and LLM key live only in env vars; nothing is sent to the browser or put in URLs.
 - **Rate-limit awareness** — the Junction client honors `Retry-After` on 429s with a single retry.
 - **Zod validation** on every tool input.
 
