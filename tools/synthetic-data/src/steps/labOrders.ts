@@ -140,15 +140,39 @@ function orderRequestFor(
  * At-home phlebotomy orders cannot progress through simulation until an
  * appointment exists; book the first available sandbox slot at the patient's
  * address. No-op when the order has already left the received stage.
+ *
+ * A freshly created order starts at received.at_home_phlebotomy.ordered,
+ * which has no requisition yet — booking (and the later simulate-to-completed
+ * call) requires one, so first nudge the FSM to requisition_created.
  */
 async function ensurePhlebotomyAppointment(
   client: JunctionClient,
   def: ScenarioDef,
   orderId: string,
 ): Promise<boolean> {
-  const fresh = await client.labTests.getOrder({ orderId });
-  const stage = (fresh.lastEvent?.status as string | undefined)?.split(".")[0];
+  let fresh = await client.labTests.getOrder({ orderId });
+  let status = fresh.lastEvent?.status as string | undefined;
+  let stage = status?.split(".")[0];
   if (stage !== "received") return false;
+
+  if (status === "received.at_home_phlebotomy.ordered") {
+    await client.labTests.simulateOrderProcess({
+      orderId,
+      delay: 1,
+      finalStatus: "received.at_home_phlebotomy.requisition_created",
+    });
+    // Simulation progresses asynchronously server-side; poll briefly for the requisition to land.
+    for (let attempt = 0; attempt < 10 && status === "received.at_home_phlebotomy.ordered"; attempt++) {
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      fresh = await client.labTests.getOrder({ orderId });
+      status = fresh.lastEvent?.status as string | undefined;
+    }
+    stage = status?.split(".")[0];
+    if (status === "received.at_home_phlebotomy.ordered") {
+      throw new Error(`order ${orderId} never reached requisition_created after simulation`);
+    }
+    if (stage !== "received") return false;
+  }
 
   const d = getUserSpec(def.user).demographics;
   const avail = await client.labTests.getPhlebotomyAppointmentAvailability({
