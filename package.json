@@ -11,13 +11,13 @@
   },
   "scripts": {
     "preinstall": "npx only-allow pnpm",
-    "dev": "pnpm --filter demo-web dev",
-    "build": "pnpm --filter demo-web build",
-    "start": "pnpm --filter demo-web start",
-    "lint": "pnpm --filter demo-web lint",
-    "stdio": "pnpm --filter junction-mcp stdio",
-    "smoke": "pnpm --filter junction-mcp smoke",
-    "setup:sandbox": "pnpm --filter synthetic-data setup",
+    "dev": "pnpm --filter demo-web run dev",
+    "build": "pnpm --filter demo-web run build",
+    "start": "pnpm --filter demo-web run start",
+    "lint": "pnpm --filter demo-web run lint",
+    "stdio": "pnpm --filter junction-mcp run stdio",
+    "smoke": "pnpm --filter junction-mcp run smoke",
+    "setup:sandbox": "pnpm --filter synthetic-data run setup",
     "typecheck": "pnpm -r typecheck"
   }
 }
